@@ -1,7 +1,8 @@
+
 [project]
 name = "aquasense"
 version = "1.0.0"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.110",
     "uvicorn[standard]>=0.29",
@@ -11,8 +12,7 @@ dependencies = [
     "scikit-learn>=1.4",
     "xgboost>=2.0",
     "joblib>=1.3",
-    "requests>=2.31",
-    "httpx>=0.27"
+    "requests>=2.31"
 ]
 
 [tool.vercel]
