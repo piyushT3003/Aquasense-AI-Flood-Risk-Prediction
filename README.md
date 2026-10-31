@@ -319,14 +319,11 @@ AquaSense is architected for zero-friction serverless deployment:
 | `/api/ai/query` | `POST` | Query grounded Gemini AI decision copilot |
 
 ---
-
-
-
 *Special thanks to Karnataka State Natural Disaster Monitoring Centre (KSNDMC) and Bruhat Bengaluru Mahanagara Palike (BBMP) for published urban drainage documentation and flood vulnerability reports.*
 
 ---
 
 <p align="center">
   <sub>Developed with ❤️ for the resilient future of Bengaluru.</sub><br>
-  <sub>Licensed under the MIT License.</sub>
+  <sub>Copyright © 2026 AquaSense. All Rights Reserved.</sub>
 </p>
