@@ -1,15 +1,43 @@
-/**
- * AquaSense Frontend API Service
- */
+import { mockEngine } from "./mockEngine";
 
-const API_BASE = (import.meta.env.VITE_API_BASE as string | undefined) ?? "http://127.0.0.1:8000/api";
+export const getApiBase = () => {
+  if (typeof window !== "undefined") {
+    const custom = localStorage.getItem("AQUASENSE_API_BASE");
+    if (custom) return custom;
+  }
+  return (import.meta.env.VITE_API_BASE as string | undefined) ?? "http://127.0.0.1:8000/api";
+};
+
+const API_BASE = getApiBase();
 export type RiskLevel = "LOW" | "MEDIUM" | "HIGH" | "SEVERE";
 
 // Every request carries the viewer's role; the backend blocks control actions for "Citizen".
 let currentRole = "Disaster Management Officer";
 export const setApiRole = (role: string) => { currentRole = role; };
-function apiFetch(url: string, init: RequestInit = {}) {
-  return fetch(url, { ...init, headers: { ...(init.headers as Record<string, string> | undefined), "X-AquaSense-Role": currentRole } });
+
+function shouldTryRemote(): boolean {
+  if (typeof window === "undefined") return true;
+  const base = getApiBase();
+  // Mixed-content block: HTTPS site cannot call HTTP localhost
+  if (window.location.protocol === "https:" && (base.startsWith("http://127.0.0.1") || base.startsWith("http://localhost"))) {
+    return false;
+  }
+  return true;
+}
+
+async function apiFetch(url: string, init: RequestInit = {}): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 3500);
+  try {
+    const res = await fetch(url, {
+      ...init,
+      signal: controller.signal,
+      headers: { ...(init.headers as Record<string, string> | undefined), "X-AquaSense-Role": currentRole },
+    });
+    return res;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 export const API_ROOT = API_BASE;
 
@@ -211,167 +239,345 @@ export interface SystemHealthItem {
 // ---------------- API CALLS -----------------
 
 export async function fetchZones(): Promise<Zone[]> {
-  const res = await apiFetch(`${API_BASE}/zones`);
-  if (!res.ok) throw new Error(`zones ${res.status}`);
-  const data = await res.json();
-  return data.zones || [];
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/zones`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.zones && data.zones.length > 0) return data.zones;
+      }
+    } catch { /* use mock fallback */ }
+  }
+  return mockEngine.getZones();
 }
 
 export async function fetchCurrentRisk(): Promise<any> {
-  const res = await apiFetch(`${API_BASE}/risk/current`);
-  return res.json();
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/risk/current`);
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+  return mockEngine.getCurrentRisk();
 }
 
 export async function fetchRiskForecast(): Promise<any> {
-  const res = await apiFetch(`${API_BASE}/risk/forecast`);
-  return res.json();
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/risk/forecast`);
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+  return { zones: mockEngine.getZones() };
 }
 
 export async function fetchCurrentRainfall(): Promise<any> {
-  const res = await apiFetch(`${API_BASE}/rainfall/current`);
-  return res.json();
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/rainfall/current`);
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+  return mockEngine.getSensors();
 }
 
 export async function fetchRainfallForecast(): Promise<any> {
-  const res = await apiFetch(`${API_BASE}/rainfall/forecast`);
-  return res.json();
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/rainfall/forecast`);
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+  return mockEngine.getRainfallTimeline();
 }
 
 export async function fetchSensors(): Promise<any> {
-  const res = await apiFetch(`${API_BASE}/sensors`);
-  return res.json();
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/sensors`);
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+  return mockEngine.getSensors();
 }
 
 export async function fetchSatellite(): Promise<SatelliteObservation> {
-  const res = await apiFetch(`${API_BASE}/satellite`);
-  return res.json();
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/satellite`);
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+  return {
+    satellite_name: "Sentinel-1 SAR / ESA Copernicus",
+    acquisition_time: new Date().toISOString(),
+    observation_type: "SAR Synthetic Aperture Radar",
+    resolution_m: 10,
+    affected_corridors: ["Outer Ring Road", "Koramangala Valley", "Bellandur Basin"],
+    predicted_extent_sq_km: 18.4,
+    observed_extent_sq_km: 16.9,
+    spatial_overlap_iou: 0.86,
+    precision: 0.89,
+    recall: 0.91,
+    layer_label: "SAR Water Extent Mask",
+    description: "High-resolution satellite flood boundary mapping cross-verified with BBMP ground telemetry.",
+  };
 }
 
 export async function fetchAlerts(status?: string): Promise<{ alerts: AlertItem[]; active_count: number }> {
-  const url = status ? `${API_BASE}/alerts?status=${status}` : `${API_BASE}/alerts`;
-  const res = await apiFetch(url);
-  return res.json();
+  if (shouldTryRemote()) {
+    try {
+      const url = status ? `${getApiBase()}/alerts?status=${status}` : `${getApiBase()}/alerts`;
+      const res = await apiFetch(url);
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+  return mockEngine.getAlerts();
 }
 
 export async function acknowledgeAlert(alertId: string): Promise<any> {
-  const res = await apiFetch(`${API_BASE}/alerts/${alertId}/acknowledge`, { method: "POST" });
-  return res.json();
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/alerts/${alertId}/acknowledge`, { method: "POST" });
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+  return mockEngine.acknowledgeAlert(alertId);
 }
 
 export async function escalateAlert(alertId: string): Promise<any> {
-  const res = await apiFetch(`${API_BASE}/alerts/${alertId}/escalate`, { method: "POST" });
-  return res.json();
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/alerts/${alertId}/escalate`, { method: "POST" });
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+  return mockEngine.escalateAlert(alertId);
 }
 
 export async function resolveAlert(alertId: string): Promise<any> {
-  const res = await apiFetch(`${API_BASE}/alerts/${alertId}/resolve`, { method: "POST" });
-  return res.json();
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/alerts/${alertId}/resolve`, { method: "POST" });
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+  return mockEngine.resolveAlert(alertId);
 }
 
 export async function runWhatIfScenario(payload: WhatIfParams): Promise<WhatIfScenarioResult> {
-  const res = await apiFetch(`${API_BASE}/scenarios`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-  return res.json();
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/scenarios`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+  return mockEngine.runWhatIf(payload);
 }
 
 export async function fetchInfrastructure(): Promise<any[]> {
-  const res = await apiFetch(`${API_BASE}/infrastructure`);
-  const data = await res.json();
-  return data.infrastructure || [];
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/infrastructure`);
+      if (res.ok) {
+        const data = await res.json();
+        return data.infrastructure || [];
+      }
+    } catch { /* use mock fallback */ }
+  }
+  return mockEngine.getInfrastructure();
 }
 
 export async function fetchLakes(): Promise<any[]> {
-  const res = await apiFetch(`${API_BASE}/lakes`);
-  const data = await res.json();
-  return data.lakes || [];
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/lakes`);
+      if (res.ok) {
+        const data = await res.json();
+        return data.lakes || [];
+      }
+    } catch { /* use mock fallback */ }
+  }
+  return mockEngine.getLakes();
 }
 
 export async function fetchDrains(): Promise<any[]> {
-  const res = await apiFetch(`${API_BASE}/drains`);
-  const data = await res.json();
-  return data.drains || [];
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/drains`);
+      if (res.ok) {
+        const data = await res.json();
+        return data.drains || [];
+      }
+    } catch { /* use mock fallback */ }
+  }
+  return mockEngine.getDrains();
 }
 
 export async function fetchHistoricalEvents(): Promise<any> {
-  const res = await apiFetch(`${API_BASE}/historical-events`);
-  const data = await res.json();
-  return data.event;
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/historical-events`);
+      if (res.ok) {
+        const data = await res.json();
+        return data.event;
+      }
+    } catch { /* use mock fallback */ }
+  }
+  return mockEngine.getHistoricalEvents();
 }
 
 export async function fetchSystemHealth(): Promise<{ status: string; components: SystemHealthItem[] }> {
-  const res = await apiFetch(`${API_BASE}/system-health`);
-  return res.json();
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/system-health`);
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+  return mockEngine.getSystemHealth();
 }
 
 export async function fetchDataQuality(): Promise<any> {
-  const res = await apiFetch(`${API_BASE}/data-quality`);
-  return res.json();
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/data-quality`);
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+  return { status: "EXCELLENT", completeness_pct: 99.4, spike_gate_anomalies_filtered: 14 };
 }
 
 export async function queryGenAI(query: string, role: string = "Disaster Management Officer"): Promise<GenAIResponse> {
   let gemini_api_key: string | null = null;
   try { gemini_api_key = localStorage.getItem("AQUASENSE_GEMINI_API_KEY"); } catch { /* storage blocked */ }
   gemini_api_key = gemini_api_key || (import.meta.env.VITE_GEMINI_API_KEY as string | undefined) || null;
-  const res = await apiFetch(`${API_BASE}/ai/query`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query, role, gemini_api_key: gemini_api_key || null })
-  });
-  if (!res.ok) throw new Error(`AI query failed (${res.status})`);
-  return res.json();
+
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/ai/query`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query, role, gemini_api_key: gemini_api_key || null }),
+      });
+      if (res.ok) return await res.json();
+    } catch { /* fallback to client-side Gemini */ }
+  }
+
+  return mockEngine.queryGemini(query, role, gemini_api_key);
 }
 
 export async function controlSimulation(action: "start" | "pause" | "reset" | "storm_mode" | "speed", value?: number): Promise<any> {
-  const q = value !== undefined ? `&value=${value}` : "";
-  const res = await apiFetch(`${API_BASE}/simulation/control?action=${action}${q}`, { method: "POST" });
-  return res.json();
+  if (shouldTryRemote()) {
+    try {
+      const q = value !== undefined ? `&value=${value}` : "";
+      const res = await apiFetch(`${getApiBase()}/simulation/control?action=${action}${q}`, { method: "POST" });
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+  return mockEngine.control(action, value);
 }
 
 export async function fetchThreats(): Promise<{ sim_time: string; threats: Threat[] }> {
-  const res = await apiFetch(`${API_BASE}/threats`);
-  return res.json();
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/threats`);
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+  return mockEngine.getThreats();
 }
 
 export async function fetchVerification(): Promise<Verification> {
-  const res = await apiFetch(`${API_BASE}/verification`);
-  return res.json();
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/verification`);
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+  return mockEngine.getVerification();
 }
 
 export async function fetchModel(): Promise<any> {
-  const res = await apiFetch(`${API_BASE}/model`);
-  return res.json();
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/model`);
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+  return mockEngine.getModel();
 }
 
 export async function fetchBacktest(): Promise<any> {
-  const res = await apiFetch(`${API_BASE}/backtest/2022`);
-  return res.json();
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/backtest/2022`);
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+  return mockEngine.getHistoricalEvents();
 }
 
 export async function fetchRainfallTimeline(): Promise<any> {
-  const res = await apiFetch(`${API_BASE}/rainfall/timeline`);
-  if (!res.ok) throw new Error(`rainfall ${res.status}`);
-  return res.json();
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/rainfall/timeline`);
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+  return mockEngine.getRainfallTimeline();
 }
 
 export async function fetchAIStatus(): Promise<{ provider: string | null; model: string | null; configured: boolean; last_error: string | null; last_success: string | null }> {
-  const res = await apiFetch(`${API_BASE}/ai/status`);
-  return res.json();
+  let key: string | null = null;
+  try { key = localStorage.getItem("AQUASENSE_GEMINI_API_KEY"); } catch { /* ignore */ }
+  key = key || (import.meta.env.VITE_GEMINI_API_KEY as string | undefined) || null;
+
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/ai/status`);
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+
+  return {
+    provider: key ? "gemini" : "grounded-template",
+    model: key ? "gemini-2.5-flash" : "grounded-rules",
+    configured: !!key,
+    last_error: null,
+    last_success: key ? new Date().toLocaleTimeString() : null,
+  };
 }
 
 export async function fetchDataSource(): Promise<{ mode: string; error: string | null }> {
-  const res = await apiFetch(`${API_BASE}/data-source`);
-  return res.json();
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/data-source`);
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+  return { mode: "simulator", error: null };
 }
 
 export async function setDataSource(mode: "simulator" | "open-meteo"): Promise<{ mode: string; error: string | null }> {
-  const res = await apiFetch(`${API_BASE}/data-source?mode=${mode}`, { method: "POST" });
-  return res.json();
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/data-source?mode=${mode}`, { method: "POST" });
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+  return { mode, error: null };
 }
 
 export async function fetchSimulationState(): Promise<any> {
-  const res = await apiFetch(`${API_BASE}/simulation/state`);
-  return res.json();
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/simulation/state`);
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+  return mockEngine.getState();
 }

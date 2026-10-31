@@ -1,0 +1,1217 @@
+{
+  "zones": [
+    {
+      "id": "zone-1",
+      "name": "Bellandur",
+      "ward_number": 150,
+      "zone_type": "Tech Corridor / Lake Outlet",
+      "center": {
+        "lat": 12.9304,
+        "lng": 77.6784
+      },
+      "elevation_m": 880.5,
+      "slope_degrees": 1.2,
+      "impervious_ratio": 0.88,
+      "drainage_vulnerability": 0.92,
+      "historical_flood_frequency": 14,
+      "lake_proximity_m": 120.0,
+      "primary_lake_name": "Bellandur Lake",
+      "critical_infrastructure_count": 8,
+      "baseline_rain_mm": 64.0,
+      "baseline_water_level_m": 2.4,
+      "baseline_soil_sat": 82.0,
+      "swd_basin": "Koramangala-Challaghatta (KC) Valley",
+      "boundary_polygon": [
+        [
+          77.665,
+          12.938
+        ],
+        [
+          77.692,
+          12.938
+        ],
+        [
+          77.695,
+          12.922
+        ],
+        [
+          77.668,
+          12.921
+        ],
+        [
+          77.665,
+          12.938
+        ]
+      ]
+    },
+    {
+      "id": "zone-2",
+      "name": "Silk Board Junction",
+      "ward_number": 173,
+      "zone_type": "Major Arterial Transit Hub",
+      "center": {
+        "lat": 12.9177,
+        "lng": 77.6238
+      },
+      "elevation_m": 874.0,
+      "slope_degrees": 0.8,
+      "impervious_ratio": 0.94,
+      "drainage_vulnerability": 0.95,
+      "historical_flood_frequency": 18,
+      "lake_proximity_m": 350.0,
+      "primary_lake_name": "Madiwala Lake",
+      "critical_infrastructure_count": 9,
+      "baseline_rain_mm": 58.0,
+      "baseline_water_level_m": 2.1,
+      "baseline_soil_sat": 78.0,
+      "swd_basin": "Madiwala / KC Valley",
+      "boundary_polygon": [
+        [
+          77.615,
+          12.925
+        ],
+        [
+          77.632,
+          12.925
+        ],
+        [
+          77.633,
+          12.911
+        ],
+        [
+          77.614,
+          12.91
+        ],
+        [
+          77.615,
+          12.925
+        ]
+      ]
+    },
+    {
+      "id": "zone-3",
+      "name": "Koramangala 4th Block",
+      "ward_number": 151,
+      "zone_type": "Dense Commercial / Residential",
+      "center": {
+        "lat": 12.9352,
+        "lng": 77.6245
+      },
+      "elevation_m": 878.0,
+      "slope_degrees": 1.1,
+      "impervious_ratio": 0.89,
+      "drainage_vulnerability": 0.88,
+      "historical_flood_frequency": 16,
+      "lake_proximity_m": 600.0,
+      "primary_lake_name": "Agara Lake / SWD Channel",
+      "critical_infrastructure_count": 7,
+      "baseline_rain_mm": 52.0,
+      "baseline_water_level_m": 1.8,
+      "baseline_soil_sat": 74.0,
+      "swd_basin": "KC Valley Primary Drain",
+      "boundary_polygon": [
+        [
+          77.618,
+          12.942
+        ],
+        [
+          77.634,
+          12.942
+        ],
+        [
+          77.635,
+          12.928
+        ],
+        [
+          77.619,
+          12.927
+        ],
+        [
+          77.618,
+          12.942
+        ]
+      ]
+    },
+    {
+      "id": "zone-4",
+      "name": "HSR Layout Sector 6 & 7",
+      "ward_number": 174,
+      "zone_type": "Planned Residential Basin",
+      "center": {
+        "lat": 12.9116,
+        "lng": 77.6389
+      },
+      "elevation_m": 883.0,
+      "slope_degrees": 1.4,
+      "impervious_ratio": 0.82,
+      "drainage_vulnerability": 0.81,
+      "historical_flood_frequency": 11,
+      "lake_proximity_m": 400.0,
+      "primary_lake_name": "Agara Lake",
+      "critical_infrastructure_count": 6,
+      "baseline_rain_mm": 49.0,
+      "baseline_water_level_m": 1.5,
+      "baseline_soil_sat": 70.0,
+      "swd_basin": "Agara Downstream Drain",
+      "boundary_polygon": [
+        [
+          77.629,
+          12.919
+        ],
+        [
+          77.649,
+          12.919
+        ],
+        [
+          77.65,
+          12.904
+        ],
+        [
+          77.63,
+          12.903
+        ],
+        [
+          77.629,
+          12.919
+        ]
+      ]
+    },
+    {
+      "id": "zone-5",
+      "name": "Rainbow Drive Layout",
+      "ward_number": 149,
+      "zone_type": "Low-Lying Enclosed Valley",
+      "center": {
+        "lat": 12.916,
+        "lng": 77.708
+      },
+      "elevation_m": 870.0,
+      "slope_degrees": 0.6,
+      "impervious_ratio": 0.79,
+      "drainage_vulnerability": 0.96,
+      "historical_flood_frequency": 12,
+      "lake_proximity_m": 300.0,
+      "primary_lake_name": "Halanayakanahalli Lake",
+      "critical_infrastructure_count": 4,
+      "baseline_rain_mm": 61.0,
+      "baseline_water_level_m": 2.3,
+      "baseline_soil_sat": 84.0,
+      "swd_basin": "Sarjapur Valley Outlet",
+      "boundary_polygon": [
+        [
+          77.698,
+          12.923
+        ],
+        [
+          77.717,
+          12.923
+        ],
+        [
+          77.718,
+          12.909
+        ],
+        [
+          77.699,
+          12.908
+        ],
+        [
+          77.698,
+          12.923
+        ]
+      ]
+    },
+    {
+      "id": "zone-6",
+      "name": "EcoSpace Outer Ring Road",
+      "ward_number": 150,
+      "zone_type": "High-Value IT Park Corridor",
+      "center": {
+        "lat": 12.926,
+        "lng": 77.684
+      },
+      "elevation_m": 879.0,
+      "slope_degrees": 0.9,
+      "impervious_ratio": 0.92,
+      "drainage_vulnerability": 0.91,
+      "historical_flood_frequency": 13,
+      "lake_proximity_m": 210.0,
+      "primary_lake_name": "Bellandur Wetland Fringe",
+      "critical_infrastructure_count": 8,
+      "baseline_rain_mm": 60.0,
+      "baseline_water_level_m": 2.2,
+      "baseline_soil_sat": 80.0,
+      "swd_basin": "ORR Storm Drain Culvert",
+      "boundary_polygon": [
+        [
+          77.676,
+          12.932
+        ],
+        [
+          77.693,
+          12.932
+        ],
+        [
+          77.694,
+          12.92
+        ],
+        [
+          77.677,
+          12.919
+        ],
+        [
+          77.676,
+          12.932
+        ]
+      ]
+    },
+    {
+      "id": "zone-7",
+      "name": "Manyata Tech Park",
+      "ward_number": 6,
+      "zone_type": "North IT Corridor / Nagawara Valley",
+      "center": {
+        "lat": 13.0475,
+        "lng": 77.6214
+      },
+      "elevation_m": 892.0,
+      "slope_degrees": 1.0,
+      "impervious_ratio": 0.91,
+      "drainage_vulnerability": 0.85,
+      "historical_flood_frequency": 9,
+      "lake_proximity_m": 280.0,
+      "primary_lake_name": "Nagawara Lake",
+      "critical_infrastructure_count": 7,
+      "baseline_rain_mm": 44.0,
+      "baseline_water_level_m": 1.4,
+      "baseline_soil_sat": 68.0,
+      "swd_basin": "Hebbal-Nagawara Drain",
+      "boundary_polygon": [
+        [
+          77.611,
+          13.056
+        ],
+        [
+          77.632,
+          13.056
+        ],
+        [
+          77.633,
+          13.039
+        ],
+        [
+          77.612,
+          13.038
+        ],
+        [
+          77.611,
+          13.056
+        ]
+      ]
+    },
+    {
+      "id": "zone-8",
+      "name": "Hebbal Flyover Junction",
+      "ward_number": 7,
+      "zone_type": "Airport Expressway Node",
+      "center": {
+        "lat": 13.0358,
+        "lng": 77.597
+      },
+      "elevation_m": 898.0,
+      "slope_degrees": 1.3,
+      "impervious_ratio": 0.89,
+      "drainage_vulnerability": 0.79,
+      "historical_flood_frequency": 8,
+      "lake_proximity_m": 150.0,
+      "primary_lake_name": "Hebbal Lake",
+      "critical_infrastructure_count": 6,
+      "baseline_rain_mm": 41.0,
+      "baseline_water_level_m": 1.2,
+      "baseline_soil_sat": 65.0,
+      "swd_basin": "Hebbal Lake Spillway",
+      "boundary_polygon": [
+        [
+          77.587,
+          13.044
+        ],
+        [
+          77.607,
+          13.044
+        ],
+        [
+          77.608,
+          13.028
+        ],
+        [
+          77.588,
+          13.027
+        ],
+        [
+          77.587,
+          13.044
+        ]
+      ]
+    },
+    {
+      "id": "zone-9",
+      "name": "Mahadevapura ORR",
+      "ward_number": 82,
+      "zone_type": "Industrial & Tech Corridor",
+      "center": {
+        "lat": 12.9915,
+        "lng": 77.6975
+      },
+      "elevation_m": 886.0,
+      "slope_degrees": 1.2,
+      "impervious_ratio": 0.85,
+      "drainage_vulnerability": 0.84,
+      "historical_flood_frequency": 10,
+      "lake_proximity_m": 450.0,
+      "primary_lake_name": "Mahadevapura Kere",
+      "critical_infrastructure_count": 7,
+      "baseline_rain_mm": 48.0,
+      "baseline_water_level_m": 1.6,
+      "baseline_soil_sat": 72.0,
+      "swd_basin": "K.R. Puram Catchment",
+      "boundary_polygon": [
+        [
+          77.687,
+          13.0
+        ],
+        [
+          77.708,
+          13.0
+        ],
+        [
+          77.709,
+          12.983
+        ],
+        [
+          77.688,
+          12.982
+        ],
+        [
+          77.687,
+          13.0
+        ]
+      ]
+    },
+    {
+      "id": "zone-10",
+      "name": "Whitefield Kadugodi",
+      "ward_number": 84,
+      "zone_type": "ITPL Tech & Railway Corridor",
+      "center": {
+        "lat": 12.9698,
+        "lng": 77.7499
+      },
+      "elevation_m": 895.0,
+      "slope_degrees": 1.5,
+      "impervious_ratio": 0.81,
+      "drainage_vulnerability": 0.76,
+      "historical_flood_frequency": 7,
+      "lake_proximity_m": 500.0,
+      "primary_lake_name": "Kundalahalli Lake",
+      "critical_infrastructure_count": 8,
+      "baseline_rain_mm": 38.0,
+      "baseline_water_level_m": 1.1,
+      "baseline_soil_sat": 63.0,
+      "swd_basin": "Channasandra Outfall",
+      "boundary_polygon": [
+        [
+          77.739,
+          12.979
+        ],
+        [
+          77.761,
+          12.979
+        ],
+        [
+          77.762,
+          12.961
+        ],
+        [
+          77.74,
+          12.96
+        ],
+        [
+          77.739,
+          12.979
+        ]
+      ]
+    },
+    {
+      "id": "zone-11",
+      "name": "Marathahalli Underpass",
+      "ward_number": 85,
+      "zone_type": "Critical Road Depression",
+      "center": {
+        "lat": 12.9562,
+        "lng": 77.7011
+      },
+      "elevation_m": 876.0,
+      "slope_degrees": 2.2,
+      "impervious_ratio": 0.95,
+      "drainage_vulnerability": 0.94,
+      "historical_flood_frequency": 17,
+      "lake_proximity_m": 350.0,
+      "primary_lake_name": "Marathahalli Kere",
+      "critical_infrastructure_count": 6,
+      "baseline_rain_mm": 55.0,
+      "baseline_water_level_m": 2.0,
+      "baseline_soil_sat": 76.0,
+      "swd_basin": "Spice Garden SWD Sump",
+      "boundary_polygon": [
+        [
+          77.692,
+          12.964
+        ],
+        [
+          77.711,
+          12.964
+        ],
+        [
+          77.712,
+          12.948
+        ],
+        [
+          77.693,
+          12.947
+        ],
+        [
+          77.692,
+          12.964
+        ]
+      ]
+    },
+    {
+      "id": "zone-12",
+      "name": "Varthur Kodi",
+      "ward_number": 149,
+      "zone_type": "Downstream Drainage Sump",
+      "center": {
+        "lat": 12.9406,
+        "lng": 77.7466
+      },
+      "elevation_m": 868.0,
+      "slope_degrees": 0.7,
+      "impervious_ratio": 0.75,
+      "drainage_vulnerability": 0.93,
+      "historical_flood_frequency": 15,
+      "lake_proximity_m": 80.0,
+      "primary_lake_name": "Varthur Lake",
+      "critical_infrastructure_count": 5,
+      "baseline_rain_mm": 57.0,
+      "baseline_water_level_m": 2.2,
+      "baseline_soil_sat": 85.0,
+      "swd_basin": "Varthur Lake Outflow Spillway",
+      "boundary_polygon": [
+        [
+          77.736,
+          12.949
+        ],
+        [
+          77.757,
+          12.949
+        ],
+        [
+          77.758,
+          12.932
+        ],
+        [
+          77.737,
+          12.931
+        ],
+        [
+          77.736,
+          12.949
+        ]
+      ]
+    },
+    {
+      "id": "zone-13",
+      "name": "Bommanahalli Garvebhavipalya",
+      "ward_number": 175,
+      "zone_type": "Dense Mixed Residential",
+      "center": {
+        "lat": 12.8984,
+        "lng": 77.6293
+      },
+      "elevation_m": 885.0,
+      "slope_degrees": 1.0,
+      "impervious_ratio": 0.9,
+      "drainage_vulnerability": 0.87,
+      "historical_flood_frequency": 12,
+      "lake_proximity_m": 420.0,
+      "primary_lake_name": "Begur Lake",
+      "critical_infrastructure_count": 6,
+      "baseline_rain_mm": 47.0,
+      "baseline_water_level_m": 1.7,
+      "baseline_soil_sat": 71.0,
+      "swd_basin": "Hosur Road Primary Culvert",
+      "boundary_polygon": [
+        [
+          77.619,
+          12.906
+        ],
+        [
+          77.64,
+          12.906
+        ],
+        [
+          77.641,
+          12.89
+        ],
+        [
+          77.62,
+          12.889
+        ],
+        [
+          77.619,
+          12.906
+        ]
+      ]
+    },
+    {
+      "id": "zone-14",
+      "name": "Bannerghatta Road Bilekahalli",
+      "ward_number": 188,
+      "zone_type": "South Arterial Corridor",
+      "center": {
+        "lat": 12.8988,
+        "lng": 77.5992
+      },
+      "elevation_m": 894.0,
+      "slope_degrees": 1.3,
+      "impervious_ratio": 0.86,
+      "drainage_vulnerability": 0.83,
+      "historical_flood_frequency": 9,
+      "lake_proximity_m": 350.0,
+      "primary_lake_name": "Hulimavu Lake",
+      "critical_infrastructure_count": 5,
+      "baseline_rain_mm": 42.0,
+      "baseline_water_level_m": 1.3,
+      "baseline_soil_sat": 66.0,
+      "swd_basin": "Hulimavu Overflow Canal",
+      "boundary_polygon": [
+        [
+          77.589,
+          12.907
+        ],
+        [
+          77.609,
+          12.907
+        ],
+        [
+          77.61,
+          12.891
+        ],
+        [
+          77.59,
+          12.89
+        ],
+        [
+          77.589,
+          12.907
+        ]
+      ]
+    },
+    {
+      "id": "zone-15",
+      "name": "Nayandahalli Mysore Road",
+      "ward_number": 131,
+      "zone_type": "Transit Interchange / Valley Basin",
+      "center": {
+        "lat": 12.9431,
+        "lng": 77.5218
+      },
+      "elevation_m": 862.0,
+      "slope_degrees": 0.9,
+      "impervious_ratio": 0.87,
+      "drainage_vulnerability": 0.9,
+      "historical_flood_frequency": 14,
+      "lake_proximity_m": 290.0,
+      "primary_lake_name": "Nayandahalli Kere",
+      "critical_infrastructure_count": 7,
+      "baseline_rain_mm": 51.0,
+      "baseline_water_level_m": 1.9,
+      "baseline_soil_sat": 75.0,
+      "swd_basin": "Vrishabhavathi River Basin",
+      "boundary_polygon": [
+        [
+          77.512,
+          12.951
+        ],
+        [
+          77.532,
+          12.951
+        ],
+        [
+          77.533,
+          12.935
+        ],
+        [
+          77.513,
+          12.934
+        ],
+        [
+          77.512,
+          12.951
+        ]
+      ]
+    },
+    {
+      "id": "zone-16",
+      "name": "Majestic Okalipuram",
+      "ward_number": 95,
+      "zone_type": "Central Terminal & Underpass",
+      "center": {
+        "lat": 12.9781,
+        "lng": 77.5726
+      },
+      "elevation_m": 905.0,
+      "slope_degrees": 1.8,
+      "impervious_ratio": 0.96,
+      "drainage_vulnerability": 0.89,
+      "historical_flood_frequency": 15,
+      "lake_proximity_m": 900.0,
+      "primary_lake_name": "Dharmambudhi Historical Tank",
+      "critical_infrastructure_count": 10,
+      "baseline_rain_mm": 48.0,
+      "baseline_water_level_m": 1.8,
+      "baseline_soil_sat": 73.0,
+      "swd_basin": "City Railway Culvert Complex",
+      "boundary_polygon": [
+        [
+          77.563,
+          12.986
+        ],
+        [
+          77.582,
+          12.986
+        ],
+        [
+          77.583,
+          12.97
+        ],
+        [
+          77.564,
+          12.969
+        ],
+        [
+          77.563,
+          12.986
+        ]
+      ]
+    },
+    {
+      "id": "zone-17",
+      "name": "Shivajinagar Cantonment",
+      "ward_number": 92,
+      "zone_type": "Heritage Commercial / High Density",
+      "center": {
+        "lat": 12.9857,
+        "lng": 77.6057
+      },
+      "elevation_m": 915.0,
+      "slope_degrees": 1.4,
+      "impervious_ratio": 0.95,
+      "drainage_vulnerability": 0.86,
+      "historical_flood_frequency": 11,
+      "lake_proximity_m": 650.0,
+      "primary_lake_name": "Ulsoor Lake",
+      "critical_infrastructure_count": 8,
+      "baseline_rain_mm": 45.0,
+      "baseline_water_level_m": 1.5,
+      "baseline_soil_sat": 69.0,
+      "swd_basin": "Ulsoor Inflow Drain",
+      "boundary_polygon": [
+        [
+          77.596,
+          12.994
+        ],
+        [
+          77.616,
+          12.994
+        ],
+        [
+          77.617,
+          12.977
+        ],
+        [
+          77.597,
+          12.976
+        ],
+        [
+          77.596,
+          12.994
+        ]
+      ]
+    },
+    {
+      "id": "zone-18",
+      "name": "Rajajinagar 1st Block",
+      "ward_number": 10,
+      "zone_type": "West Ridge-to-Valley Residential",
+      "center": {
+        "lat": 12.9912,
+        "lng": 77.554
+      },
+      "elevation_m": 925.0,
+      "slope_degrees": 2.5,
+      "impervious_ratio": 0.88,
+      "drainage_vulnerability": 0.74,
+      "historical_flood_frequency": 6,
+      "lake_proximity_m": 800.0,
+      "primary_lake_name": "Sankey Tank Catchment",
+      "critical_infrastructure_count": 6,
+      "baseline_rain_mm": 35.0,
+      "baseline_water_level_m": 1.0,
+      "baseline_soil_sat": 60.0,
+      "swd_basin": "Bashyam Circle SWD",
+      "boundary_polygon": [
+        [
+          77.544,
+          13.0
+        ],
+        [
+          77.564,
+          13.0
+        ],
+        [
+          77.565,
+          12.983
+        ],
+        [
+          77.545,
+          12.982
+        ],
+        [
+          77.544,
+          13.0
+        ]
+      ]
+    }
+  ],
+  "lakes": [
+    {
+      "id": "lake-1",
+      "name": "Bellandur Lake",
+      "area_acres": 910,
+      "capacity_mcm": 17.5,
+      "current_full_pct": 92.4,
+      "status": "CRITICAL_SPILLWAY_AT_CAPACITY",
+      "coords": [
+        [
+          77.66,
+          12.945
+        ],
+        [
+          77.685,
+          12.94
+        ],
+        [
+          77.69,
+          12.925
+        ],
+        [
+          77.67,
+          12.92
+        ],
+        [
+          77.655,
+          12.935
+        ],
+        [
+          77.66,
+          12.945
+        ]
+      ]
+    },
+    {
+      "id": "lake-2",
+      "name": "Varthur Lake",
+      "area_acres": 440,
+      "capacity_mcm": 8.2,
+      "current_full_pct": 89.1,
+      "status": "NEAR_FULL",
+      "coords": [
+        [
+          77.73,
+          12.945
+        ],
+        [
+          77.75,
+          12.95
+        ],
+        [
+          77.76,
+          12.935
+        ],
+        [
+          77.74,
+          12.93
+        ],
+        [
+          77.73,
+          12.945
+        ]
+      ]
+    },
+    {
+      "id": "lake-3",
+      "name": "Agara Lake",
+      "area_acres": 140,
+      "capacity_mcm": 2.9,
+      "current_full_pct": 84.6,
+      "status": "ELEVATED",
+      "coords": [
+        [
+          77.64,
+          12.925
+        ],
+        [
+          77.652,
+          12.922
+        ],
+        [
+          77.65,
+          12.915
+        ],
+        [
+          77.638,
+          12.918
+        ],
+        [
+          77.64,
+          12.925
+        ]
+      ]
+    },
+    {
+      "id": "lake-4",
+      "name": "Madiwala Lake",
+      "area_acres": 270,
+      "capacity_mcm": 4.6,
+      "current_full_pct": 88.0,
+      "status": "NEAR_FULL",
+      "coords": [
+        [
+          77.61,
+          12.915
+        ],
+        [
+          77.625,
+          12.918
+        ],
+        [
+          77.624,
+          12.905
+        ],
+        [
+          77.608,
+          12.906
+        ],
+        [
+          77.61,
+          12.915
+        ]
+      ]
+    },
+    {
+      "id": "lake-5",
+      "name": "Hebbal Lake",
+      "area_acres": 150,
+      "capacity_mcm": 3.1,
+      "current_full_pct": 76.5,
+      "status": "CONTROLLED",
+      "coords": [
+        [
+          77.585,
+          13.045
+        ],
+        [
+          77.6,
+          13.042
+        ],
+        [
+          77.598,
+          13.032
+        ],
+        [
+          77.583,
+          13.035
+        ],
+        [
+          77.585,
+          13.045
+        ]
+      ]
+    },
+    {
+      "id": "lake-6",
+      "name": "Ulsoor Lake",
+      "area_acres": 120,
+      "capacity_mcm": 2.4,
+      "current_full_pct": 72.0,
+      "status": "NORMAL",
+      "coords": [
+        [
+          77.615,
+          12.986
+        ],
+        [
+          77.626,
+          12.984
+        ],
+        [
+          77.624,
+          12.976
+        ],
+        [
+          77.614,
+          12.978
+        ],
+        [
+          77.615,
+          12.986
+        ]
+      ]
+    }
+  ],
+  "drains": [
+    {
+      "name": "Koramangala-Challaghatta (KC) Valley Primary SWD",
+      "length_km": 28.5,
+      "vulnerability": "SEVERE",
+      "status": "HIGH_SILTATION_BOTTLENECK",
+      "path": [
+        [
+          77.605,
+          12.955
+        ],
+        [
+          77.625,
+          12.935
+        ],
+        [
+          77.65,
+          12.925
+        ],
+        [
+          77.675,
+          12.93
+        ],
+        [
+          77.74,
+          12.94
+        ]
+      ]
+    },
+    {
+      "name": "Vrishabhavathi Valley Trunk Drain",
+      "length_km": 32.0,
+      "vulnerability": "HIGH",
+      "status": "ELEVATED_RUNOFF",
+      "path": [
+        [
+          77.545,
+          12.985
+        ],
+        [
+          77.53,
+          12.96
+        ],
+        [
+          77.52,
+          12.94
+        ],
+        [
+          77.505,
+          12.91
+        ],
+        [
+          77.49,
+          12.87
+        ]
+      ]
+    },
+    {
+      "name": "Hebbal Valley Outfall Canal",
+      "length_km": 19.2,
+      "vulnerability": "MEDIUM",
+      "status": "FLOWING_NORMAL",
+      "path": [
+        [
+          77.575,
+          13.02
+        ],
+        [
+          77.595,
+          13.035
+        ],
+        [
+          77.62,
+          13.045
+        ],
+        [
+          77.66,
+          13.06
+        ]
+      ]
+    }
+  ],
+  "infrastructure": [
+    {
+      "name": "Sakra World Hospital",
+      "type": "Hospital",
+      "zone_id": "zone-1",
+      "coords": [
+        77.683,
+        12.929
+      ],
+      "status": "ACCESS_WARNING"
+    },
+    {
+      "name": "Manipal Hospital Old Airport Rd",
+      "type": "Hospital",
+      "zone_id": "zone-3",
+      "coords": [
+        77.652,
+        12.958
+      ],
+      "status": "OPEN"
+    },
+    {
+      "name": "St. John's Medical College Hospital",
+      "type": "Hospital",
+      "zone_id": "zone-2",
+      "coords": [
+        77.621,
+        12.931
+      ],
+      "status": "OPEN"
+    },
+    {
+      "name": "Aster CMI Hospital Hebbal",
+      "type": "Hospital",
+      "zone_id": "zone-8",
+      "coords": [
+        77.593,
+        13.054
+      ],
+      "status": "OPEN"
+    },
+    {
+      "name": "Silk Board Metro Interchange",
+      "type": "Metro Station",
+      "zone_id": "zone-2",
+      "coords": [
+        77.624,
+        12.918
+      ],
+      "status": "HIGH_PUDDLE_RISK"
+    },
+    {
+      "name": "Majestic Transit Terminal",
+      "type": "Metro / Bus Terminal",
+      "zone_id": "zone-16",
+      "coords": [
+        77.571,
+        12.977
+      ],
+      "status": "OPERATIONAL"
+    },
+    {
+      "name": "Marathahalli Kalamandir Underpass",
+      "type": "Underpass",
+      "zone_id": "zone-11",
+      "coords": [
+        77.701,
+        12.956
+      ],
+      "status": "WATERLOGGED_CLOSED"
+    },
+    {
+      "name": "Okalipuram Railway Underpass",
+      "type": "Underpass",
+      "zone_id": "zone-16",
+      "coords": [
+        77.568,
+        12.981
+      ],
+      "status": "PUMP_ACTIVE"
+    },
+    {
+      "name": "Windsor Manor Underpass",
+      "type": "Underpass",
+      "zone_id": "zone-17",
+      "coords": [
+        77.587,
+        12.998
+      ],
+      "status": "CLEAR"
+    },
+    {
+      "name": "Outer Ring Road (EcoSpace stretch)",
+      "type": "Major Arterial Road",
+      "zone_id": "zone-6",
+      "coords": [
+        77.684,
+        12.926
+      ],
+      "status": "TRAFFIC_RESTRICTED"
+    }
+  ],
+  "historical_deluge": {
+    "event_name": "Bengaluru Deluge - September 2022",
+    "description": "Unprecedented urban cloudburst delivering 131.6 mm of rain within 6 hours across East & South Bengaluru, inundating Outer Ring Road tech corridors and low-lying layouts.",
+    "timesteps": [
+      {
+        "step": "T-24h",
+        "label": "24 Hours Before Peak",
+        "rainfall_accum_mm": 28.0,
+        "soil_saturation_pct": 65,
+        "high_risk_zones": 3,
+        "severe_risk_zones": 0,
+        "notes": "Antecedent monsoon showers saturated topsoil in Bellandur & KC Valley catchments."
+      },
+      {
+        "step": "T-12h",
+        "label": "12 Hours Before Peak",
+        "rainfall_accum_mm": 54.0,
+        "soil_saturation_pct": 78,
+        "high_risk_zones": 6,
+        "severe_risk_zones": 1,
+        "notes": "Lakes reached 90% full capacity; stormwater channels showed elevated baseline discharge."
+      },
+      {
+        "step": "T-6h",
+        "label": "6 Hours Before Peak",
+        "rainfall_accum_mm": 89.0,
+        "soil_saturation_pct": 91,
+        "high_risk_zones": 10,
+        "severe_risk_zones": 4,
+        "notes": "Cloudburst intensified over Bellandur, Marathahalli, and Silk Board. Rain gauge alarms triggered."
+      },
+      {
+        "step": "EVENT",
+        "label": "Peak Inundation Crisis",
+        "rainfall_accum_mm": 131.6,
+        "soil_saturation_pct": 99,
+        "high_risk_zones": 14,
+        "severe_risk_zones": 8,
+        "notes": "Bellandur lake spilled over; EcoSpace ORR, Rainbow Drive, and Silk Board submerged under 2-4 ft water."
+      },
+      {
+        "step": "RECOVERY",
+        "label": "Post-Crisis Drainage & Recovery",
+        "rainfall_accum_mm": 134.0,
+        "soil_saturation_pct": 82,
+        "high_risk_zones": 4,
+        "severe_risk_zones": 1,
+        "notes": "Emergency de-watering pumps and breach repairs enabled slow channel drawdown over 36 hours."
+      }
+    ]
+  }
+}
