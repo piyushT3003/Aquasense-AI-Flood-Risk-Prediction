@@ -1,0 +1,604 @@
+{
+  "event": "Bengaluru deluge, 4-5 Sept 2022 (reconstructed rainfall)",
+  "peak_time": "2022-09-05T02:00:00",
+  "note": "Hourly rainfall rebuilt from the event timeline; flooding simulated by the hydrology model. Not observed gauge data - replace with KSNDMC records for a true backtest.",
+  "zones_flooded": 7,
+  "zones_warned_before_flooding": 7,
+  "median_lead_time_h": 13.0,
+  "median_severe_lead_time_h": 7.0,
+  "false_alarm_zones": 5,
+  "timeline": [
+    {
+      "h": -36,
+      "city_rain_mm": 0.0,
+      "mean_prob": 0.011,
+      "zones_high": 1,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": -35,
+      "city_rain_mm": 0.0,
+      "mean_prob": 0.006,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": -34,
+      "city_rain_mm": 0.0,
+      "mean_prob": 0.003,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": -33,
+      "city_rain_mm": 4.5,
+      "mean_prob": 0.001,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": -32,
+      "city_rain_mm": 0.0,
+      "mean_prob": 0.004,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": -31,
+      "city_rain_mm": 3.6,
+      "mean_prob": 0.002,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": -30,
+      "city_rain_mm": 11.0,
+      "mean_prob": 0.005,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": -29,
+      "city_rain_mm": 0.0,
+      "mean_prob": 0.002,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": -28,
+      "city_rain_mm": 0.0,
+      "mean_prob": 0.002,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": -27,
+      "city_rain_mm": 0.0,
+      "mean_prob": 0.001,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": -26,
+      "city_rain_mm": 0.0,
+      "mean_prob": 0.001,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": -25,
+      "city_rain_mm": 0.0,
+      "mean_prob": 0.001,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": -24,
+      "city_rain_mm": 0.0,
+      "mean_prob": 0.005,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": -23,
+      "city_rain_mm": 1.7,
+      "mean_prob": 0.006,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": -22,
+      "city_rain_mm": 1.9,
+      "mean_prob": 0.004,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": -21,
+      "city_rain_mm": 2.1,
+      "mean_prob": 0.003,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": -20,
+      "city_rain_mm": 2.3,
+      "mean_prob": 0.009,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": -19,
+      "city_rain_mm": 2.4,
+      "mean_prob": 0.015,
+      "zones_high": 1,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": -18,
+      "city_rain_mm": 2.8,
+      "mean_prob": 0.011,
+      "zones_high": 1,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": -17,
+      "city_rain_mm": 2.8,
+      "mean_prob": 0.011,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": -16,
+      "city_rain_mm": 3.1,
+      "mean_prob": 0.017,
+      "zones_high": 1,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": -15,
+      "city_rain_mm": 3.3,
+      "mean_prob": 0.025,
+      "zones_high": 2,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": -14,
+      "city_rain_mm": 3.6,
+      "mean_prob": 0.059,
+      "zones_high": 4,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": -13,
+      "city_rain_mm": 3.8,
+      "mean_prob": 0.117,
+      "zones_high": 5,
+      "zones_severe": 2,
+      "zones_flooded": 0
+    },
+    {
+      "h": -12,
+      "city_rain_mm": 3.9,
+      "mean_prob": 0.156,
+      "zones_high": 5,
+      "zones_severe": 3,
+      "zones_flooded": 0
+    },
+    {
+      "h": -11,
+      "city_rain_mm": 1.5,
+      "mean_prob": 0.149,
+      "zones_high": 7,
+      "zones_severe": 1,
+      "zones_flooded": 0
+    },
+    {
+      "h": -10,
+      "city_rain_mm": 3.0,
+      "mean_prob": 0.213,
+      "zones_high": 7,
+      "zones_severe": 3,
+      "zones_flooded": 0
+    },
+    {
+      "h": -9,
+      "city_rain_mm": 6.0,
+      "mean_prob": 0.325,
+      "zones_high": 7,
+      "zones_severe": 6,
+      "zones_flooded": 0
+    },
+    {
+      "h": -8,
+      "city_rain_mm": 19.4,
+      "mean_prob": 0.408,
+      "zones_high": 10,
+      "zones_severe": 8,
+      "zones_flooded": 2
+    },
+    {
+      "h": -7,
+      "city_rain_mm": 11.9,
+      "mean_prob": 0.187,
+      "zones_high": 7,
+      "zones_severe": 3,
+      "zones_flooded": 0
+    },
+    {
+      "h": -6,
+      "city_rain_mm": 3.0,
+      "mean_prob": 0.155,
+      "zones_high": 7,
+      "zones_severe": 1,
+      "zones_flooded": 0
+    },
+    {
+      "h": -5,
+      "city_rain_mm": 1.8,
+      "mean_prob": 0.286,
+      "zones_high": 9,
+      "zones_severe": 4,
+      "zones_flooded": 0
+    },
+    {
+      "h": -4,
+      "city_rain_mm": 4.7,
+      "mean_prob": 0.167,
+      "zones_high": 7,
+      "zones_severe": 1,
+      "zones_flooded": 0
+    },
+    {
+      "h": -3,
+      "city_rain_mm": 11.1,
+      "mean_prob": 0.21,
+      "zones_high": 7,
+      "zones_severe": 3,
+      "zones_flooded": 0
+    },
+    {
+      "h": -2,
+      "city_rain_mm": 26.1,
+      "mean_prob": 0.363,
+      "zones_high": 10,
+      "zones_severe": 6,
+      "zones_flooded": 6
+    },
+    {
+      "h": -1,
+      "city_rain_mm": 10.3,
+      "mean_prob": 0.141,
+      "zones_high": 6,
+      "zones_severe": 2,
+      "zones_flooded": 3
+    },
+    {
+      "h": 0,
+      "city_rain_mm": 1.9,
+      "mean_prob": 0.064,
+      "zones_high": 6,
+      "zones_severe": 0,
+      "zones_flooded": 3
+    },
+    {
+      "h": 1,
+      "city_rain_mm": 1.0,
+      "mean_prob": 0.101,
+      "zones_high": 6,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": 2,
+      "city_rain_mm": 1.0,
+      "mean_prob": 0.056,
+      "zones_high": 3,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": 3,
+      "city_rain_mm": 1.0,
+      "mean_prob": 0.033,
+      "zones_high": 2,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": 4,
+      "city_rain_mm": 0.0,
+      "mean_prob": 0.019,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": 5,
+      "city_rain_mm": 0.0,
+      "mean_prob": 0.014,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": 6,
+      "city_rain_mm": 0.0,
+      "mean_prob": 0.013,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": 7,
+      "city_rain_mm": 0.0,
+      "mean_prob": 0.009,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": 8,
+      "city_rain_mm": 0.0,
+      "mean_prob": 0.005,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": 9,
+      "city_rain_mm": 0.0,
+      "mean_prob": 0.007,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": 10,
+      "city_rain_mm": 0.0,
+      "mean_prob": 0.006,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": 11,
+      "city_rain_mm": 0.0,
+      "mean_prob": 0.005,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    },
+    {
+      "h": 12,
+      "city_rain_mm": 0.0,
+      "mean_prob": 0.004,
+      "zones_high": 0,
+      "zones_severe": 0,
+      "zones_flooded": 0
+    }
+  ],
+  "zones": [
+    {
+      "zone_id": "zone-1",
+      "zone": "Bellandur",
+      "peak_prob": 0.99,
+      "flooded": true,
+      "first_flood_h": -2,
+      "first_high_h": -15,
+      "first_severe_h": -13,
+      "lead_time_h": 13,
+      "severe_lead_time_h": 11
+    },
+    {
+      "zone_id": "zone-11",
+      "zone": "Marathahalli Underpass",
+      "peak_prob": 0.99,
+      "flooded": true,
+      "first_flood_h": -8,
+      "first_high_h": -14,
+      "first_severe_h": -12,
+      "lead_time_h": 6,
+      "severe_lead_time_h": 4
+    },
+    {
+      "zone_id": "zone-2",
+      "zone": "Silk Board Junction",
+      "peak_prob": 0.99,
+      "flooded": true,
+      "first_flood_h": -2,
+      "first_high_h": -19,
+      "first_severe_h": -9,
+      "lead_time_h": 17,
+      "severe_lead_time_h": 7
+    },
+    {
+      "zone_id": "zone-5",
+      "zone": "Rainbow Drive Layout",
+      "peak_prob": 0.99,
+      "flooded": true,
+      "first_flood_h": -8,
+      "first_high_h": -36,
+      "first_severe_h": -10,
+      "lead_time_h": 28,
+      "severe_lead_time_h": 2
+    },
+    {
+      "zone_id": "zone-6",
+      "zone": "EcoSpace Outer Ring Road",
+      "peak_prob": 0.99,
+      "flooded": true,
+      "first_flood_h": -2,
+      "first_high_h": -18,
+      "first_severe_h": -13,
+      "lead_time_h": 16,
+      "severe_lead_time_h": 11
+    },
+    {
+      "zone_id": "zone-12",
+      "zone": "Varthur Kodi",
+      "peak_prob": 0.882,
+      "flooded": true,
+      "first_flood_h": -2,
+      "first_high_h": -13,
+      "first_severe_h": -9,
+      "lead_time_h": 11,
+      "severe_lead_time_h": 7
+    },
+    {
+      "zone_id": "zone-13",
+      "zone": "Bommanahalli Garvebhavipalya",
+      "peak_prob": 0.79,
+      "flooded": true,
+      "first_flood_h": 0,
+      "first_high_h": -12,
+      "first_severe_h": -7,
+      "lead_time_h": 12,
+      "severe_lead_time_h": 7
+    },
+    {
+      "zone_id": "zone-3",
+      "zone": "Koramangala 4th Block",
+      "peak_prob": 0.79,
+      "flooded": false,
+      "first_flood_h": null,
+      "first_high_h": -11,
+      "first_severe_h": -8,
+      "lead_time_h": null,
+      "severe_lead_time_h": null
+    },
+    {
+      "zone_id": "zone-4",
+      "zone": "HSR Layout Sector 6 & 7",
+      "peak_prob": 0.79,
+      "flooded": false,
+      "first_flood_h": null,
+      "first_high_h": -9,
+      "first_severe_h": -9,
+      "lead_time_h": null,
+      "severe_lead_time_h": null
+    },
+    {
+      "zone_id": "zone-9",
+      "zone": "Mahadevapura ORR",
+      "peak_prob": 0.55,
+      "flooded": false,
+      "first_flood_h": null,
+      "first_high_h": -8,
+      "first_severe_h": -8,
+      "lead_time_h": null,
+      "severe_lead_time_h": null
+    },
+    {
+      "zone_id": "zone-7",
+      "zone": "Manyata Tech Park",
+      "peak_prob": 0.378,
+      "flooded": false,
+      "first_flood_h": null,
+      "first_high_h": -9,
+      "first_severe_h": null,
+      "lead_time_h": null,
+      "severe_lead_time_h": null
+    },
+    {
+      "zone_id": "zone-14",
+      "zone": "Bannerghatta Road Bilekahalli",
+      "peak_prob": 0.195,
+      "flooded": false,
+      "first_flood_h": null,
+      "first_high_h": -8,
+      "first_severe_h": null,
+      "lead_time_h": null,
+      "severe_lead_time_h": null
+    },
+    {
+      "zone_id": "zone-15",
+      "zone": "Nayandahalli Mysore Road",
+      "peak_prob": 0.086,
+      "flooded": false,
+      "first_flood_h": null,
+      "first_high_h": null,
+      "first_severe_h": null,
+      "lead_time_h": null,
+      "severe_lead_time_h": null
+    },
+    {
+      "zone_id": "zone-16",
+      "zone": "Majestic Okalipuram",
+      "peak_prob": 0.055,
+      "flooded": false,
+      "first_flood_h": null,
+      "first_high_h": null,
+      "first_severe_h": null,
+      "lead_time_h": null,
+      "severe_lead_time_h": null
+    },
+    {
+      "zone_id": "zone-17",
+      "zone": "Shivajinagar Cantonment",
+      "peak_prob": 0.055,
+      "flooded": false,
+      "first_flood_h": null,
+      "first_high_h": null,
+      "first_severe_h": null,
+      "lead_time_h": null,
+      "severe_lead_time_h": null
+    },
+    {
+      "zone_id": "zone-8",
+      "zone": "Hebbal Flyover Junction",
+      "peak_prob": 0.055,
+      "flooded": false,
+      "first_flood_h": null,
+      "first_high_h": null,
+      "first_severe_h": null,
+      "lead_time_h": null,
+      "severe_lead_time_h": null
+    },
+    {
+      "zone_id": "zone-10",
+      "zone": "Whitefield Kadugodi",
+      "peak_prob": 0.012,
+      "flooded": false,
+      "first_flood_h": null,
+      "first_high_h": null,
+      "first_severe_h": null,
+      "lead_time_h": null,
+      "severe_lead_time_h": null
+    },
+    {
+      "zone_id": "zone-18",
+      "zone": "Rajajinagar 1st Block",
+      "peak_prob": 0.005,
+      "flooded": false,
+      "first_flood_h": null,
+      "first_high_h": null,
+      "first_severe_h": null,
+      "lead_time_h": null,
+      "severe_lead_time_h": null
+    }
+  ]
+}
