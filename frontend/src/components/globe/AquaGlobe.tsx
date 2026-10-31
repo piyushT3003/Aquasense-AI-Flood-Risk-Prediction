@@ -37,12 +37,13 @@ export const AquaGlobe: React.FC<AquaGlobeProps> = ({
     if (!mountRef.current) return;
     const container = mountRef.current;
     const width = container.clientWidth || 800;
-    const height = container.clientHeight || 550;
+    const height = container.clientHeight || 420;
 
-    // 1. Scene, Camera, Renderer
+    // 1. Scene, Camera, Renderer (Centered on 0,0,0)
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    camera.position.set(0, 8, 26);
+    camera.position.set(0, 0, 24);
+    camera.lookAt(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
@@ -53,8 +54,8 @@ export const AquaGlobe: React.FC<AquaGlobeProps> = ({
     const globeGroup = new THREE.Group();
     scene.add(globeGroup);
 
-    // 2. Earth Sphere Base
-    const radius = 9.0;
+    // 2. Earth Sphere Base (Scaled to comfortably fit container)
+    const radius = 7.0;
     const globeGeo = new THREE.SphereGeometry(radius, 64, 64);
     const globeMat = new THREE.MeshPhongMaterial({
       color: 0x050c18,
@@ -132,9 +133,9 @@ export const AquaGlobe: React.FC<AquaGlobeProps> = ({
       return line;
     };
 
-    orbitRings.add(createRing(12.5, 12.5, Math.PI / 3.5, 0.4));
-    orbitRings.add(createRing(13.8, 11.2, -Math.PI / 4, -0.6));
-    orbitRings.add(createRing(11.8, 13.0, Math.PI / 2.2, 0.8));
+    orbitRings.add(createRing(9.8, 9.8, Math.PI / 3.4, 0.4));
+    orbitRings.add(createRing(10.5, 9.2, -Math.PI / 3.8, -0.5));
+    orbitRings.add(createRing(9.2, 10.0, Math.PI / 2.3, 0.7));
     scene.add(orbitRings);
 
     // 6. Coordinates Helper: Convert Lat/Lng to Vector3 on Globe
@@ -225,7 +226,7 @@ export const AquaGlobe: React.FC<AquaGlobeProps> = ({
     globeGroup.add(rainParticles);
 
     // 10. Radar Scan Sweep Ring
-    const radarGeo = new THREE.RingGeometry(0.6, 2.8, 48);
+    const radarGeo = new THREE.RingGeometry(0.5, 2.0, 48);
     const radarMat = new THREE.MeshBasicMaterial({
       color: 0xef4444,
       transparent: true,
@@ -249,9 +250,9 @@ export const AquaGlobe: React.FC<AquaGlobeProps> = ({
     blueLight.position.set(-15, -10, 15);
     scene.add(blueLight);
 
-    // Focus camera directly on Bengaluru location initially
-    globeGroup.rotation.y = -1.45;
-    globeGroup.rotation.x = 0.22;
+    // Focus camera directly on Bengaluru location initially (front-and-center, slightly tilted north)
+    globeGroup.rotation.y = -2.94;
+    globeGroup.rotation.x = 0.18;
 
     sceneRef.current = {
       scene,
@@ -284,7 +285,7 @@ export const AquaGlobe: React.FC<AquaGlobeProps> = ({
       prevMouseY = e.clientY;
 
       sceneRef.current.globeGroup.rotation.y += deltaX * 0.005;
-      sceneRef.current.globeGroup.rotation.x += deltaY * 0.005;
+      sceneRef.current.globeGroup.rotation.x = Math.max(-0.85, Math.min(0.85, sceneRef.current.globeGroup.rotation.x + deltaY * 0.005));
     };
 
     const handleMouseUp = () => {
@@ -294,7 +295,8 @@ export const AquaGlobe: React.FC<AquaGlobeProps> = ({
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       if (!sceneRef.current) return;
-      camera.position.z = Math.max(16, Math.min(38, camera.position.z + e.deltaY * 0.02));
+      camera.position.z = Math.max(16, Math.min(34, camera.position.z + e.deltaY * 0.02));
+      camera.lookAt(0, 0, 0);
     };
 
     container.addEventListener("mousedown", handleMouseDown);
@@ -312,7 +314,7 @@ export const AquaGlobe: React.FC<AquaGlobeProps> = ({
 
       // Subtle slow globe rotation
       if (!isDragging) {
-        globeGroup.rotation.y += 0.0012;
+        globeGroup.rotation.y += 0.0008;
       }
 
       // Rotate orbital rings
@@ -359,17 +361,18 @@ export const AquaGlobe: React.FC<AquaGlobeProps> = ({
 
     animate();
 
-    // Resize Handler
-    const handleResize = () => {
-      if (!container || !sceneRef.current) return;
-      const w = container.clientWidth;
-      const h = container.clientHeight;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
-    };
-
-    window.addEventListener("resize", handleResize);
+    // Resize Observer for robust responsive layout
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width: w, height: h } = entry.contentRect;
+        if (w > 0 && h > 0 && sceneRef.current) {
+          camera.aspect = w / h;
+          camera.updateProjectionMatrix();
+          renderer.setSize(w, h);
+        }
+      }
+    });
+    resizeObserver.observe(container);
 
     return () => {
       cancelAnimationFrame(animId);
@@ -377,13 +380,13 @@ export const AquaGlobe: React.FC<AquaGlobeProps> = ({
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
       container.removeEventListener("wheel", handleWheel);
-      window.removeEventListener("resize", handleResize);
+      resizeObserver.disconnect();
       renderer.dispose();
     };
   }, [hasZones]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="relative w-full h-[540px] flex items-center justify-center overflow-hidden">
+    <div className="relative w-full h-full min-h-[380px] flex items-center justify-center overflow-hidden">
       {/* 3D WebGL Canvas */}
       <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
 

@@ -70,7 +70,6 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
         </div>
         <div className="relative h-[420px] overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-b from-[#071a33]/60 to-transparent">
           <AquaGlobe zones={zones} selectedZone={null} onSelectZone={() => undefined} isStormActive={isStormActive} />
-          <div className="pointer-events-none absolute bottom-3 left-4 text-[11px] text-slate-500">Bengaluru · 12.97° N, 77.59° E</div>
         </div>
       </section>
 
