@@ -320,14 +320,7 @@ AquaSense is architected for zero-friction serverless deployment:
 
 ---
 
-## 🎓 Capstone Authors & Acknowledgments
 
-**Alliance University — Department of Computer Science & Engineering**  
-*Bachelor of Computer Applications (AI, Data Analytics & Disaster Management)*
-
-- **Dakshraj Singh Chandawat** — *Team Lead, Hydrological Modeling & ML Architecture*
-- **Piyush Ramesh Tandale** — *Full-Stack Engineering, 3D WebGL Visualization & Deployment*
-- **Tejas Pebam** — *GIS Pipelines, Data Ingestion & Alert Verification*
 
 *Special thanks to Karnataka State Natural Disaster Monitoring Centre (KSNDMC) and Bruhat Bengaluru Mahanagara Palike (BBMP) for published urban drainage documentation and flood vulnerability reports.*
 
