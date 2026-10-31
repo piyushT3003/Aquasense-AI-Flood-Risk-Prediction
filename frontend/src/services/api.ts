@@ -314,6 +314,7 @@ export async function fetchDataQuality(): Promise<any> {
 export async function queryGenAI(query: string, role: string = "Disaster Management Officer"): Promise<GenAIResponse> {
   let gemini_api_key: string | null = null;
   try { gemini_api_key = localStorage.getItem("AQUASENSE_GEMINI_API_KEY"); } catch { /* storage blocked */ }
+  gemini_api_key = gemini_api_key || (import.meta.env.VITE_GEMINI_API_KEY as string | undefined) || null;
   const res = await apiFetch(`${API_BASE}/ai/query`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

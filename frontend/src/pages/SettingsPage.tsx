@@ -47,7 +47,13 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
   currentRole,
   onChangeRole
 }) => {
-  const [apiKey, setApiKey] = useState<string>(() => { try { return localStorage.getItem("AQUASENSE_GEMINI_API_KEY") ?? ""; } catch { return ""; } });
+  const [apiKey, setApiKey] = useState<string>(() => {
+    try {
+      return localStorage.getItem("AQUASENSE_GEMINI_API_KEY") ?? (import.meta.env.VITE_GEMINI_API_KEY as string | undefined) ?? "";
+    } catch {
+      return (import.meta.env.VITE_GEMINI_API_KEY as string | undefined) ?? "";
+    }
+  });
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
   const handleSaveApiKey = () => {
