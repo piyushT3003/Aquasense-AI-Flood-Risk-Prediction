@@ -102,7 +102,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
               </div>
               <div className="mt-1 text-xs text-slate-300">Median warning time: <b className="text-white">{verification.median_lead_time_h ?? "–"} h</b> before water appeared</div>
               <ul className="mt-3 space-y-1 text-[11px] text-slate-400">
-                {verification.recent.slice(0, 4).map((e, i) => (
+                {(verification?.recent ?? []).slice(0, 4).map((e, i) => (
                   <li key={i} className="flex justify-between gap-2"><span className="truncate">{e.zone}</span>
                     <span className={e.warned ? "text-emerald-300" : "text-rose-300"}>{e.warned ? `${e.lead_time_h} h ahead` : "missed"}</span></li>
                 ))}

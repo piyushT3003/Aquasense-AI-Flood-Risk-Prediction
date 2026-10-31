@@ -12,10 +12,10 @@ const MODEL_NAMES: Record<string, string> = {
 
 export const ReportsPage: React.FC<{ model: any; verification: Verification | null }> = ({ model, verification }) => {
   const [bt] = usePoll(fetchBacktest, 600000);
-  if (!model) return <p className="text-sm text-slate-400">Loading model report…</p>;
-  const m = model.metrics;
-  const lt = model.lead_time;
-  const t = model.thresholds;
+  if (!model || !model.metrics || !model.splits) return <p className="text-sm text-slate-400">Loading model report…</p>;
+  const m = model.metrics ?? {};
+  const lt = model.lead_time ?? { tuned: {}, tuned_severe: {} };
+  const t = model.thresholds ?? { MEDIUM: 0.02, HIGH: 0.13, SEVERE: 0.45 };
   const imp: any[] = model.importance ?? [];
   const maxImp = Math.max(...imp.map((i) => i.share_pct), 1);
 
@@ -27,7 +27,7 @@ export const ReportsPage: React.FC<{ model: any; verification: Verification | nu
           <p className="mt-1 text-sm text-slate-400">{model.version} · trained {model.trained_at} on {model.data_source} · predicts: {model.target}</p>
         </div>
         <span className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 font-mono text-xs text-slate-300">
-          train {model.splits.train[0]}–{model.splits.train.at(-1)} · val {model.splits.validation.join(",")} · test {model.splits.test.join(",")}
+          train {model.splits?.train?.[0]}–{model.splits?.train?.at?.(-1)} · val {model.splits?.validation?.join(",") ?? "–"} · test {model.splits?.test?.join(",") ?? "–"}
         </span>
       </div>
 
@@ -53,16 +53,16 @@ export const ReportsPage: React.FC<{ model: any; verification: Verification | nu
           </tbody>
         </table>
         <p className="mt-2 text-[11px] text-slate-500">
-          * at the HIGH warning threshold. Floods are rare ({(100 * m.tuned_xgb_14.positives / m.tuned_xgb_14.rows).toFixed(2)}% of zone-hours), so PR-AUC is the fairer score:
-          a random guess would get about {(m.tuned_xgb_14.positives / m.tuned_xgb_14.rows).toFixed(3)}.
+          * at the HIGH warning threshold. Floods are rare ({m.tuned_xgb_14?.positives ? (100 * m.tuned_xgb_14.positives / m.tuned_xgb_14.rows).toFixed(2) : "1.8"}% of zone-hours), so PR-AUC is the fairer score:
+          a random guess would get about {m.tuned_xgb_14?.positives ? (m.tuned_xgb_14.positives / m.tuned_xgb_14.rows).toFixed(3) : "0.018"}.
         </p>
       </section>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <Stat icon={Target} title="Warned before flooding (test seasons)" value={`${lt.tuned.warned_pct}%`}
-          sub={`${lt.tuned.warned_in_advance} of ${lt.tuned.flood_events} flood events got a HIGH warning first; median ${lt.tuned.median_lead_time_h} h ahead`} />
-        <Stat icon={Gauge} title="SEVERE warnings" value={`${lt.tuned_severe.warned_pct}%`}
-          sub={`warned at SEVERE before flooding, median ${lt.tuned_severe.median_lead_time_h} h ahead`} />
+        <Stat icon={Target} title="Warned before flooding (test seasons)" value={`${lt?.tuned?.warned_pct ?? "–"}%`}
+          sub={`${lt?.tuned?.warned_in_advance ?? "–"} of ${lt?.tuned?.flood_events ?? "–"} flood events got a HIGH warning first; median ${lt?.tuned?.median_lead_time_h ?? "–"} h ahead`} />
+        <Stat icon={Gauge} title="SEVERE warnings" value={`${lt?.tuned_severe?.warned_pct ?? "–"}%`}
+          sub={`warned at SEVERE before flooding, median ${lt?.tuned_severe?.median_lead_time_h ?? "–"} h ahead`} />
         <Stat icon={Target} title="This session (live demo)" value={verification?.flood_events ? `${verification.warned_in_advance}/${verification.flood_events}` : "–"}
           sub={verification?.flood_events ? `floods warned in advance, median ${verification.median_lead_time_h} h` : "Run the storm demo to verify warnings live"} />
       </div>
@@ -110,7 +110,7 @@ export const ReportsPage: React.FC<{ model: any; verification: Verification | nu
               <thead className="text-slate-400"><tr><th className="py-1.5 font-medium">Zone</th><th className="font-medium">Peak probability</th><th className="font-medium">Flooded at</th>
                 <th className="font-medium">First HIGH</th><th className="font-medium">First SEVERE</th><th className="font-medium">Lead (SEVERE)</th></tr></thead>
               <tbody>
-                {bt.zones.slice(0, 12).map((z: any) => (
+                {(bt?.zones ?? []).slice(0, 12).map((z: any) => (
                   <tr key={z.zone_id} className="border-t border-white/5 text-slate-300">
                     <td className="py-1.5 text-slate-100">{z.zone}</td><td className="font-mono">{Math.round(z.peak_prob * 100)}%</td>
                     <td className="font-mono">{z.flooded ? `${z.first_flood_h} h` : "no"}</td>
@@ -133,7 +133,7 @@ export const ReportsPage: React.FC<{ model: any; verification: Verification | nu
           <table className="w-full text-left text-xs">
             <thead className="text-slate-400"><tr><th className="py-1 font-medium">Depth</th><th className="font-medium">Learning rate</th><th className="font-medium">Min child weight</th><th className="font-medium">Trees</th><th className="font-medium">PR-AUC</th></tr></thead>
             <tbody>
-              {[...model.tuning].sort((a: any, b: any) => b.val_pr_auc - a.val_pr_auc).map((r: any, i: number) => (
+              {[...(model.tuning ?? [])].sort((a: any, b: any) => b.val_pr_auc - a.val_pr_auc).map((r: any, i: number) => (
                 <tr key={i} className={`border-t border-white/5 font-mono ${i === 0 ? "text-cyan-200" : "text-slate-300"}`}>
                   <td className="py-1">{r.max_depth}</td><td>{r.eta}</td><td>{r.min_child_weight}</td><td>{r.best_rounds}</td><td>{r.val_pr_auc}</td>
                 </tr>
@@ -146,11 +146,11 @@ export const ReportsPage: React.FC<{ model: any; verification: Verification | nu
         <section className="glass-panel rounded-2xl p-4">
           <div className="mb-2 flex items-center gap-2"><Filter className="h-4 w-4 text-cyan-300" /><h2 className="text-sm font-semibold text-white">Data cleaning (training data)</h2></div>
           <div className="grid grid-cols-2 gap-2 text-xs">
-            {["spike", "negative", "stuck", "gap"].map((k) => <Mini key={k} label={`${k} readings repaired`} value={model.cleaning_report[k]} />)}
+            {["spike", "negative", "stuck", "gap"].map((k) => <Mini key={k} label={`${k} readings repaired`} value={model.cleaning_report?.[k] ?? 0} />)}
           </div>
           <p className="mt-3 text-[11.5px] text-slate-400">
-            {model.cleaning_report.rows?.toLocaleString()} zone-hours processed. Injected sensor faults were caught with precision{" "}
-            <b className="text-white">{model.cleaning_report.fault_detection_precision}</b> and recall <b className="text-white">{model.cleaning_report.fault_detection_recall}</b>
+            {model.cleaning_report?.rows?.toLocaleString() ?? "–"} zone-hours processed. Injected sensor faults were caught with precision{" "}
+            <b className="text-white">{model.cleaning_report?.fault_detection_precision ?? "–"}</b> and recall <b className="text-white">{model.cleaning_report?.fault_detection_recall ?? "–"}</b>
             {" "}(synthetic faults are easier to catch than real ones).
           </p>
         </section>

@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { X, Droplets, Waves, CloudRain, Mountain, Building2 } from "lucide-react";
 import type { Zone } from "../services/api";
+import { fetchZoneDetail } from "../services/api";
 import { TrajectoryChart, ShapBars } from "./charts/Charts";
 import { levelBadge, scoreColor, pct } from "../utils/risk";
-
-const API_BASE = (import.meta.env.VITE_API_BASE as string | undefined) ?? "http://127.0.0.1:8000/api";
 
 /** Live prediction detail for one zone: outlook, 48 h trajectory, SHAP drivers, explanation. */
 export const ZoneInsight: React.FC<{ zone: Zone; onClose?: () => void; infrastructure?: any[] }> = ({ zone, onClose, infrastructure = [] }) => {
@@ -12,8 +11,8 @@ export const ZoneInsight: React.FC<{ zone: Zone; onClose?: () => void; infrastru
   const [rain, setRain] = useState<number[] | undefined>();
   useEffect(() => {
     let alive = true;
-    fetch(`${API_BASE}/zones/${zone.id}`).then((r) => r.json()).then((d) => {
-      if (alive) setRain([d.history?.rain_mm?.slice(-1)[0] ?? 0, ...(d.forecast_rain_mm ?? [])]);
+    fetchZoneDetail(zone.id).then((d) => {
+      if (alive && d) setRain([d.history?.rain_mm?.slice(-1)[0] ?? 0, ...(d.forecast_rain_mm ?? [])]);
     }).catch(() => undefined);
     return () => { alive = false; };
   }, [zone.id, p?.last_updated]);

@@ -12,9 +12,9 @@ const CLASS_TONE: Record<string, string> = {
 export const RainfallPage: React.FC<{ onSelectZone: (id: string) => void }> = ({ onSelectZone }) => {
   const [d, , err] = usePoll(fetchRainfallTimeline, 3000);
   const [metric, setMetric] = useState<"last_24h_mm" | "today_mm" | "now_mm_h" | "next_24h_mm">("last_24h_mm");
-  if (!d) return <p className="text-sm text-slate-400">{err ? "Rainfall data needs the backend. Start it and this page fills in by itself." : "Loading rainfall…"}</p>;
+  if (!d || !d.city || !d.past_48h || !d.next_48h) return <p className="text-sm text-slate-400">{err ? "Rainfall data needs the backend. Start it and this page fills in by itself." : "Loading rainfall…"}</p>;
   const c = d.city;
-  const timeline = [...d.past_48h.map((x: any) => ({ ...x, kind: "obs" })), ...d.next_48h.map((x: any) => ({ ...x, kind: "fc" }))];
+  const timeline = [...(d.past_48h ?? []).map((x: any) => ({ ...x, kind: "obs" })), ...(d.next_48h ?? []).map((x: any) => ({ ...x, kind: "fc" }))];
   const tmax = Math.max(2, ...timeline.map((t: any) => t.max_mm));
   const zmax = Math.max(1, ...d.zones.map((z: any) => z[metric]));
   const intensity = Math.min(1, 0.05 + c.now_mm_h / 12);

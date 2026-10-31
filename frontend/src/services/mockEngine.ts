@@ -1,4 +1,6 @@
 import rawSeedData from "./seedData.json";
+import backtestData from "./backtest.json";
+import modelMetaData from "./modelMeta.json";
 import type {
   Zone,
   AlertItem,
@@ -203,6 +205,28 @@ class MockTelemetryEngine {
     });
   }
 
+  public getZoneDetail(zoneId: string) {
+    const zones = this.getZones();
+    const zone = zones.find((z) => z.id === zoneId) ?? zones[0];
+    const pred = zone?.current_prediction;
+    const rainNow = pred?.rainfall_1h_mm ?? 2.5;
+    const fcRain = pred?.forecast_6h_mm ?? 15.0;
+    const fcArray = Array.from({ length: 48 }, (_, i) => {
+      const decay = Math.max(0.2, (fcRain / 6) * Math.exp(-i / 12));
+      return Number(decay.toFixed(1));
+    });
+    return {
+      zone,
+      prediction: pred,
+      history: {
+        rain_mm: Array.from({ length: 48 }, () => Number((rainNow * (0.8 + Math.random() * 0.4)).toFixed(1))),
+        water_level_m: Array.from({ length: 48 }, () => Number(((pred?.water_level_m ?? 1.2) * (0.9 + Math.random() * 0.2)).toFixed(2))),
+      },
+      forecast_rain_mm: fcArray,
+      critical_infrastructure: this.getInfrastructure().filter((i) => i.zone_id === zoneId),
+    };
+  }
+
   public getAlerts(): { alerts: AlertItem[]; active_count: number } {
     const zones = this.getZones();
     const alerts: AlertItem[] = [];
@@ -377,6 +401,10 @@ class MockTelemetryEngine {
     return seed.historical_deluge;
   }
 
+  public getBacktest() {
+    return backtestData;
+  }
+
   public getVerification(): Verification {
     return {
       flood_events: 18,
@@ -392,28 +420,78 @@ class MockTelemetryEngine {
   }
 
   public getModel() {
-    return {
-      version: "AquaSense-XGBoost-v3.0",
-      training_seasons: "2016-2023",
-      test_seasons: "2024-2025",
-      roc_auc: 0.841,
-      pr_auc: 0.46,
-      recall_at_high: "66%",
-      features_count: 14,
-      calibration: "Isotonic Regression",
-    };
+    return modelMetaData;
   }
 
   public getRainfallTimeline() {
-    const hours: string[] = [];
-    const rainfall: number[] = [];
-    const t = new Date(this.simTime.getTime() - 24 * 3600000);
-    for (let i = 0; i < 72; i++) {
-      const stepT = new Date(t.getTime() + i * 3600000);
-      hours.push(stepT.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
-      rainfall.push(Number((2 + 5 * Math.sin(i / 6) + (this.isStormActive && i > 24 && i < 36 ? 45 : 0)).toFixed(1)));
+    const zones = this.getZones();
+    const cityNow = this.isStormActive ? 42.5 : 4.8;
+    const past_48h: any[] = [];
+    const next_48h: any[] = [];
+    const t0 = this.simTime;
+
+    for (let k = 0; k < 48; k++) {
+      const pastTime = new Date(t0.getTime() - (47 - k) * 3600000);
+      const rainBase = Math.max(0.5, 3.5 + 4.0 * Math.sin(k / 5));
+      const rainVal = this.isStormActive && k > 40 ? rainBase + 35 : rainBase;
+      past_48h.push({
+        h: -47 + k,
+        time: pastTime.toLocaleDateString([], { weekday: "short" }) + " " + pastTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        city_mm: Number(rainVal.toFixed(2)),
+        max_mm: Number((rainVal * 1.5).toFixed(1)),
+      });
     }
-    return { hours, rainfall, current_time_index: 24 };
+
+    for (let k = 0; k < 48; k++) {
+      const futTime = new Date(t0.getTime() + (k + 1) * 3600000);
+      const rainBase = Math.max(0.2, 2.5 + 3.0 * Math.sin(k / 4));
+      const rainVal = this.isStormActive && k < 6 ? rainBase + 45 : rainBase;
+      next_48h.push({
+        h: k + 1,
+        time: futTime.toLocaleDateString([], { weekday: "short" }) + " " + futTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        city_mm: Number(rainVal.toFixed(2)),
+        max_mm: Number((rainVal * 1.4).toFixed(1)),
+      });
+    }
+
+    const rainfallZones = zones.map((z) => {
+      const pred = z.current_prediction!;
+      return {
+        zone_id: z.id,
+        zone_name: z.name,
+        now_mm_h: pred.rainfall_1h_mm,
+        last_3h_mm: Number((pred.rainfall_1h_mm * 2.8).toFixed(1)),
+        today_mm: Number((pred.rainfall_24h_mm * 0.6).toFixed(1)),
+        last_24h_mm: pred.rainfall_24h_mm,
+        last_72h_mm: Number((pred.rainfall_24h_mm * 2.2).toFixed(1)),
+        next_6h_mm: pred.forecast_6h_mm,
+        next_24h_mm: Number((pred.forecast_6h_mm * 2.5).toFixed(1)),
+        class_now: pred.rainfall_1h_mm > 35 ? "Heavy" : pred.rainfall_1h_mm > 15 ? "Moderate" : pred.rainfall_1h_mm > 2 ? "Light" : "No rain",
+        class_24h: pred.rainfall_24h_mm > 80 ? "Heavy" : "Moderate",
+      };
+    });
+
+    const wettest = rainfallZones[0];
+
+    return {
+      sim_time: t0.toISOString(),
+      data_mode: "simulator",
+      source: "Simulated rain gauges",
+      city: {
+        now_mm_h: cityNow,
+        class_now: cityNow > 30 ? "Heavy" : cityNow > 10 ? "Moderate" : cityNow > 1 ? "Light" : "None",
+        today_mm: this.isStormActive ? 78.4 : 14.2,
+        last_24h_mm: this.isStormActive ? 92.6 : 28.5,
+        next_6h_mm: this.isStormActive ? 64.0 : 8.5,
+        next_24h_mm: this.isStormActive ? 112.0 : 22.0,
+        raining_zones: this.isStormActive ? 16 : 4,
+        wettest_zone: wettest?.zone_name ?? "Bellandur",
+        wettest_24h_mm: wettest?.last_24h_mm ?? 64.0,
+      },
+      zones: rainfallZones,
+      past_48h,
+      next_48h,
+    };
   }
 
   public runWhatIf(payload: WhatIfParams): WhatIfScenarioResult {

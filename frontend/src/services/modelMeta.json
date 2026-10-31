@@ -1,0 +1,473 @@
+{
+  "version": "AquaSense-XGB-v3",
+  "trained_at": "2026-10-24T02:39:11",
+  "data_source": "synthetic monsoon history",
+  "target": "waterlogging incident in the zone within the next 6 hours",
+  "splits": {
+    "train": [
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021
+    ],
+    "validation": [
+      2023
+    ],
+    "test": [
+      2024,
+      2025
+    ],
+    "backtest": [
+      2022
+    ]
+  },
+  "features": [
+    "rain_1h_mm",
+    "rain_3h_mm",
+    "rain_24h_mm",
+    "antecedent_72h_mm",
+    "forecast_6h_mm",
+    "water_level_m",
+    "drainage_capacity_index",
+    "elevation_m",
+    "slope_degrees",
+    "lake_proximity_m",
+    "impervious_ratio",
+    "incident_freq",
+    "rain_trend_3h",
+    "water_rise_1h"
+  ],
+  "feature_labels": {
+    "rain_1h_mm": "Rainfall, last hour",
+    "rain_3h_mm": "Rainfall, last 3 h",
+    "rain_24h_mm": "Rainfall, last 24 h",
+    "antecedent_72h_mm": "Rain in the 3 days before (soil wetness)",
+    "forecast_6h_mm": "Forecast rain, next 6 h",
+    "water_level_m": "Storm-drain water level",
+    "drainage_capacity_index": "Drainage capacity index",
+    "elevation_m": "Elevation",
+    "slope_degrees": "Terrain slope",
+    "lake_proximity_m": "Distance to nearest lake",
+    "impervious_ratio": "Concrete / impervious cover",
+    "incident_freq": "Past flood incidents per season",
+    "rain_trend_3h": "Rainfall trend (3 h)",
+    "water_rise_1h": "Drain level rise, last hour"
+  },
+  "thresholds": {
+    "MEDIUM": 0.02,
+    "HIGH": 0.1296,
+    "SEVERE": 0.4706
+  },
+  "drainage_index": {
+    "zone-1": 0.1332508250825084,
+    "zone-10": 0.6140614028895914,
+    "zone-11": 0.2770965934825622,
+    "zone-12": 0.17148014440433212,
+    "zone-13": 0.4122738001573565,
+    "zone-14": 0.48635355477502573,
+    "zone-15": 0.3659637918071149,
+    "zone-16": 0.40384615384615385,
+    "zone-17": 0.4442702164953338,
+    "zone-18": 0.4,
+    "zone-2": 0.258681785967399,
+    "zone-3": 0.4032015848164361,
+    "zone-4": 0.49415230983761416,
+    "zone-5": 0.21494464944649438,
+    "zone-6": 0.26076364984377476,
+    "zone-7": 0.4651196393480521,
+    "zone-8": 0.46829268292682913,
+    "zone-9": 0.4638965959507386
+  },
+  "incident_freq": {
+    "zone-1": 6.5,
+    "zone-10": 1.0,
+    "zone-11": 7.5,
+    "zone-12": 4.33,
+    "zone-13": 4.0,
+    "zone-14": 2.17,
+    "zone-15": 2.67,
+    "zone-16": 2.67,
+    "zone-17": 3.17,
+    "zone-18": 1.0,
+    "zone-2": 9.0,
+    "zone-3": 3.83,
+    "zone-4": 2.5,
+    "zone-5": 6.83,
+    "zone-6": 7.17,
+    "zone-7": 2.83,
+    "zone-8": 1.17,
+    "zone-9": 2.83
+  },
+  "cleaning_report": {
+    "negative": 184,
+    "spike": 309,
+    "stuck": 432,
+    "gap": 2111,
+    "water_level_gaps_filled": 1422,
+    "rows": 711504,
+    "fault_detection_precision": 1.0,
+    "fault_detection_recall": 1.0
+  },
+  "metrics": {
+    "rule_rain_threshold": {
+      "roc_auc": 0.846,
+      "pr_auc": 0.3916,
+      "brier": null,
+      "precision_at_high": 0.322,
+      "recall_at_high": 0.554,
+      "f1_at_high": 0.408,
+      "confusion_at_high": {
+        "tp": 422,
+        "fp": 887,
+        "fn": 340,
+        "tn": 156355
+      },
+      "positives": 762,
+      "rows": 158004,
+      "threshold_mm": 76.8,
+      "features": [
+        "rain_3h_mm",
+        "forecast_6h_mm"
+      ]
+    },
+    "baseline_xgb_12": {
+      "roc_auc": 0.8334,
+      "pr_auc": 0.4317,
+      "brier": 0.00343,
+      "precision_at_high": 0.394,
+      "recall_at_high": 0.584,
+      "f1_at_high": 0.471,
+      "confusion_at_high": {
+        "tp": 445,
+        "fp": 684,
+        "fn": 317,
+        "tn": 156558
+      },
+      "positives": 762,
+      "rows": 158004,
+      "features": [
+        "rain_1h_mm",
+        "rain_3h_mm",
+        "rain_24h_mm",
+        "antecedent_72h_mm",
+        "forecast_6h_mm",
+        "water_level_m",
+        "drainage_capacity_index",
+        "elevation_m",
+        "slope_degrees",
+        "lake_proximity_m",
+        "impervious_ratio",
+        "incident_freq"
+      ],
+      "params": {
+        "max_depth": 6,
+        "eta": 0.1,
+        "min_child_weight": 1,
+        "rounds": 300
+      }
+    },
+    "tuned_xgb_14": {
+      "roc_auc": 0.8413,
+      "pr_auc": 0.4597,
+      "brier": 0.0033,
+      "precision_at_high": 0.342,
+      "recall_at_high": 0.657,
+      "f1_at_high": 0.45,
+      "confusion_at_high": {
+        "tp": 501,
+        "fp": 964,
+        "fn": 261,
+        "tn": 156278
+      },
+      "positives": 762,
+      "rows": 158004,
+      "features": [
+        "rain_1h_mm",
+        "rain_3h_mm",
+        "rain_24h_mm",
+        "antecedent_72h_mm",
+        "forecast_6h_mm",
+        "water_level_m",
+        "drainage_capacity_index",
+        "elevation_m",
+        "slope_degrees",
+        "lake_proximity_m",
+        "impervious_ratio",
+        "incident_freq",
+        "rain_trend_3h",
+        "water_rise_1h"
+      ],
+      "params": {
+        "max_depth": 5,
+        "eta": 0.05,
+        "min_child_weight": 1,
+        "rounds": 468,
+        "monotone_constraints": true,
+        "calibration": "isotonic (validation season)"
+      }
+    }
+  },
+  "lead_time": {
+    "tuned": {
+      "flood_events": 113,
+      "warned_in_advance": 78,
+      "warned_pct": 69.0,
+      "median_lead_time_h": 6.0,
+      "warned_2h_plus_pct": 69.0
+    },
+    "tuned_severe": {
+      "flood_events": 113,
+      "warned_in_advance": 73,
+      "warned_pct": 64.6,
+      "median_lead_time_h": 5.0,
+      "warned_2h_plus_pct": 57.5
+    },
+    "baseline": {
+      "flood_events": 113,
+      "warned_in_advance": 78,
+      "warned_pct": 69.0,
+      "median_lead_time_h": 6.0,
+      "warned_2h_plus_pct": 68.1
+    }
+  },
+  "tuning": [
+    {
+      "max_depth": 3,
+      "eta": 0.05,
+      "min_child_weight": 1,
+      "rounds": 800,
+      "best_rounds": 233,
+      "val_pr_auc": 0.5156
+    },
+    {
+      "max_depth": 3,
+      "eta": 0.05,
+      "min_child_weight": 5,
+      "rounds": 800,
+      "best_rounds": 543,
+      "val_pr_auc": 0.5178
+    },
+    {
+      "max_depth": 3,
+      "eta": 0.1,
+      "min_child_weight": 1,
+      "rounds": 800,
+      "best_rounds": 364,
+      "val_pr_auc": 0.5052
+    },
+    {
+      "max_depth": 3,
+      "eta": 0.1,
+      "min_child_weight": 5,
+      "rounds": 800,
+      "best_rounds": 447,
+      "val_pr_auc": 0.503
+    },
+    {
+      "max_depth": 4,
+      "eta": 0.05,
+      "min_child_weight": 1,
+      "rounds": 800,
+      "best_rounds": 389,
+      "val_pr_auc": 0.5252
+    },
+    {
+      "max_depth": 4,
+      "eta": 0.05,
+      "min_child_weight": 5,
+      "rounds": 800,
+      "best_rounds": 629,
+      "val_pr_auc": 0.5208
+    },
+    {
+      "max_depth": 4,
+      "eta": 0.1,
+      "min_child_weight": 1,
+      "rounds": 800,
+      "best_rounds": 305,
+      "val_pr_auc": 0.5076
+    },
+    {
+      "max_depth": 4,
+      "eta": 0.1,
+      "min_child_weight": 5,
+      "rounds": 800,
+      "best_rounds": 237,
+      "val_pr_auc": 0.5027
+    },
+    {
+      "max_depth": 5,
+      "eta": 0.05,
+      "min_child_weight": 1,
+      "rounds": 800,
+      "best_rounds": 468,
+      "val_pr_auc": 0.528
+    },
+    {
+      "max_depth": 5,
+      "eta": 0.05,
+      "min_child_weight": 5,
+      "rounds": 800,
+      "best_rounds": 450,
+      "val_pr_auc": 0.5207
+    },
+    {
+      "max_depth": 5,
+      "eta": 0.1,
+      "min_child_weight": 1,
+      "rounds": 800,
+      "best_rounds": 160,
+      "val_pr_auc": 0.5049
+    },
+    {
+      "max_depth": 5,
+      "eta": 0.1,
+      "min_child_weight": 5,
+      "rounds": 800,
+      "best_rounds": 144,
+      "val_pr_auc": 0.4994
+    }
+  ],
+  "importance": [
+    {
+      "feature": "forecast_6h_mm",
+      "label": "Forecast rain, next 6 h",
+      "mean_abs_shap": 0.8527,
+      "share_pct": 22.0
+    },
+    {
+      "feature": "rain_trend_3h",
+      "label": "Rainfall trend (3 h)",
+      "mean_abs_shap": 0.6908,
+      "share_pct": 17.8
+    },
+    {
+      "feature": "rain_24h_mm",
+      "label": "Rainfall, last 24 h",
+      "mean_abs_shap": 0.4092,
+      "share_pct": 10.6
+    },
+    {
+      "feature": "incident_freq",
+      "label": "Past flood incidents per season",
+      "mean_abs_shap": 0.3373,
+      "share_pct": 8.7
+    },
+    {
+      "feature": "rain_3h_mm",
+      "label": "Rainfall, last 3 h",
+      "mean_abs_shap": 0.2785,
+      "share_pct": 7.2
+    },
+    {
+      "feature": "impervious_ratio",
+      "label": "Concrete / impervious cover",
+      "mean_abs_shap": 0.259,
+      "share_pct": 6.7
+    },
+    {
+      "feature": "antecedent_72h_mm",
+      "label": "Rain in the 3 days before (soil wetness)",
+      "mean_abs_shap": 0.2231,
+      "share_pct": 5.8
+    },
+    {
+      "feature": "water_level_m",
+      "label": "Storm-drain water level",
+      "mean_abs_shap": 0.2221,
+      "share_pct": 5.7
+    },
+    {
+      "feature": "rain_1h_mm",
+      "label": "Rainfall, last hour",
+      "mean_abs_shap": 0.1576,
+      "share_pct": 4.1
+    },
+    {
+      "feature": "lake_proximity_m",
+      "label": "Distance to nearest lake",
+      "mean_abs_shap": 0.1099,
+      "share_pct": 2.8
+    },
+    {
+      "feature": "drainage_capacity_index",
+      "label": "Drainage capacity index",
+      "mean_abs_shap": 0.0956,
+      "share_pct": 2.5
+    },
+    {
+      "feature": "elevation_m",
+      "label": "Elevation",
+      "mean_abs_shap": 0.0828,
+      "share_pct": 2.1
+    },
+    {
+      "feature": "slope_degrees",
+      "label": "Terrain slope",
+      "mean_abs_shap": 0.0783,
+      "share_pct": 2.0
+    },
+    {
+      "feature": "water_rise_1h",
+      "label": "Drain level rise, last hour",
+      "mean_abs_shap": 0.0773,
+      "share_pct": 2.0
+    }
+  ],
+  "calibration_curve": [
+    {
+      "predicted": 0.0014,
+      "observed": 0.0015,
+      "n": 153539
+    },
+    {
+      "predicted": 0.0097,
+      "observed": 0.0048,
+      "n": 1033
+    },
+    {
+      "predicted": 0.0118,
+      "observed": 0.0,
+      "n": 595
+    },
+    {
+      "predicted": 0.0313,
+      "observed": 0.0089,
+      "n": 564
+    },
+    {
+      "predicted": 0.0628,
+      "observed": 0.0298,
+      "n": 771
+    },
+    {
+      "predicted": 0.1607,
+      "observed": 0.124,
+      "n": 605
+    },
+    {
+      "predicted": 0.3741,
+      "observed": 0.2632,
+      "n": 304
+    },
+    {
+      "predicted": 0.4808,
+      "observed": 0.373,
+      "n": 185
+    },
+    {
+      "predicted": 0.7875,
+      "observed": 0.5787,
+      "n": 235
+    },
+    {
+      "predicted": 0.9111,
+      "observed": 0.8324,
+      "n": 173
+    }
+  ],
+  "training_seconds": 97.9,
+  "disclaimer": "Trained and evaluated on synthetic monsoon data generated by a hydrology model. Metrics show the pipeline works end to end; they are not claims about real-world accuracy."
+}

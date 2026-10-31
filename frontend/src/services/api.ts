@@ -251,6 +251,16 @@ export async function fetchZones(): Promise<Zone[]> {
   return mockEngine.getZones();
 }
 
+export async function fetchZoneDetail(zoneId: string): Promise<any> {
+  if (shouldTryRemote()) {
+    try {
+      const res = await apiFetch(`${getApiBase()}/zones/${zoneId}`);
+      if (res.ok) return await res.json();
+    } catch { /* use mock fallback */ }
+  }
+  return mockEngine.getZoneDetail(zoneId);
+}
+
 export async function fetchCurrentRisk(): Promise<any> {
   if (shouldTryRemote()) {
     try {
@@ -518,7 +528,7 @@ export async function fetchBacktest(): Promise<any> {
       if (res.ok) return await res.json();
     } catch { /* use mock fallback */ }
   }
-  return mockEngine.getHistoricalEvents();
+  return mockEngine.getBacktest();
 }
 
 export async function fetchRainfallTimeline(): Promise<any> {

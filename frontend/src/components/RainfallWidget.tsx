@@ -8,7 +8,9 @@ import { RainCanvas } from "./effects/RainCanvas";
 export const RainfallWidget: React.FC<{ onOpen: () => void }> = ({ onOpen }) => {
   const [d] = usePoll(fetchRainfallTimeline, 3000);
   const c = d?.city;
-  const bars: number[] = d ? [...d.past_48h.slice(-24).map((x: any) => x.city_mm), ...d.next_48h.slice(0, 12).map((x: any) => x.city_mm)] : [];
+  const bars: number[] = (d?.past_48h && d?.next_48h)
+    ? [...d.past_48h.slice(-24).map((x: any) => x.city_mm), ...d.next_48h.slice(0, 12).map((x: any) => x.city_mm)]
+    : [];
   const max = Math.max(2, ...bars);
   return (
     <button onClick={onOpen} className="glass-panel group relative w-full overflow-hidden rounded-2xl p-4 text-left transition hover:border-cyan-400/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60">
