@@ -97,7 +97,7 @@ export function App() {
   return (
     <div className="min-h-screen text-white">
       <div className="aq-aurora" aria-hidden="true" />
-      <RainCanvas intensity={Math.min(0.9, 0.07 + cityRain / 20)} maxDrops={180} className="fixed inset-0 -z-[1] h-full w-full opacity-60" />
+      <RainCanvas intensity={cityRain > 0.5 ? Math.min(0.9, 0.1 + cityRain / 20) : 0} maxDrops={180} className="fixed inset-0 -z-[1] h-full w-full opacity-60" />
       <Sidebar currentTab={tab} onSelectTab={setTab} activeAlertCount={activeAlertCount} threatCount={threats.length}
         currentRole={role} onChangeRole={setRole} collapsed={collapsed} onToggleCollapsed={() => setCollapsed(!collapsed)}
         modelVersion={backendDown ? "Backend offline" : model?.version} visible={(t) => canSee(role, t)} />

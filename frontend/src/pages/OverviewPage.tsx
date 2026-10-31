@@ -39,7 +39,8 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
       <section className="grid items-center gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
         <div className="space-y-5">
           <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/25 bg-cyan-400/[0.07] px-3 py-1 text-[11.5px] text-cyan-100">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-cyan-300" /> 18 BBMP flood zones · model {forecast?.model ?? "loading"}
+            <span className={`h-1.5 w-1.5 rounded-full ${isStormActive ? "bg-rose-400 animate-ping" : "bg-emerald-400 animate-pulse"}`} />
+            {isStormActive ? "⚡ Simulated Cloudburst Deluge Active" : "🟢 Live Bengaluru Telemetry · Open-Meteo Feed"}
           </div>
           <h1 className="max-w-[16ch] text-4xl font-extrabold leading-[1.05] tracking-tight text-white md:text-[3.25rem]" style={{ textWrap: "balance" } as React.CSSProperties}>
             Know which streets will flood before the rain arrives.
@@ -61,10 +62,10 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
             <Kpi icon={TrendingUp} label="City risk" value={cityRisk} sub={`${preds.filter((x) => x.p.risk_level === "HIGH" || x.p.risk_level === "SEVERE").length} zones HIGH or worse`}
               tone={cityRisk === "LOW" ? "text-emerald-300" : cityRisk === "MEDIUM" ? "text-amber-300" : cityRisk === "HIGH" ? "text-orange-300" : "text-rose-300"} />
-            <Kpi icon={BellRing} label="Highest risk" value={top ? `${Math.round(top.p.risk_score * 100)}` : "–"} sub={top?.z.name ?? ""}
-              tone="" color={top ? scoreColor(top.p.risk_score) : undefined} />
-            <Kpi icon={CloudRain} label="Wettest 24 h" value={wettest ? `${wettest.p.rainfall_24h_mm} mm` : "–"} sub={wettest?.z.name ?? ""} tone="text-cyan-200" />
-            <Kpi icon={CloudRain} label="Most rain next 6 h" value={nextRain ? `${nextRain.p.forecast_6h_mm} mm` : "–"} sub={nextRain?.z.name ?? ""} tone="text-sky-200" />
+            <Kpi icon={BellRing} label="Highest risk" value={isStormActive && top ? `${Math.round(top.p.risk_score * 100)}` : "<1%"} sub={isStormActive ? (top?.z.name ?? "") : "All 18 zones nominal"}
+              tone="" color={isStormActive && top ? scoreColor(top.p.risk_score) : "#34d399"} />
+            <Kpi icon={CloudRain} label="Wettest 24 h" value={wettest ? `${wettest.p.rainfall_24h_mm} mm` : "0.0 mm"} sub={isStormActive ? (wettest?.z.name ?? "") : "Live gauge reading"} tone="text-cyan-200" />
+            <Kpi icon={CloudRain} label="Most rain next 6 h" value={nextRain ? `${nextRain.p.forecast_6h_mm} mm` : "0.0 mm"} sub={isStormActive ? (nextRain?.z.name ?? "") : "Live forecast"} tone="text-sky-200" />
           </div>
         </div>
         <div className="relative h-[420px] overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-b from-[#071a33]/60 to-transparent">

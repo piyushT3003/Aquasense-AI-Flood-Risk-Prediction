@@ -162,6 +162,13 @@ export const BengaluruGISMap: React.FC<Props> = ({ zones, selectedZone, onSelect
     });
   }, [layers]);
 
+  // ---- fly to selected zone
+  useEffect(() => {
+    if (selectedZone && map.current) {
+      map.current.flyTo([selectedZone.center.lat, selectedZone.center.lng], 13.5, { duration: 0.8 });
+    }
+  }, [selectedZone]);
+
   const cityRain = useMemo(() => {
     const v = zones.map((z) => z.current_prediction?.rainfall_1h_mm ?? 0);
     return v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0;
@@ -172,7 +179,7 @@ export const BengaluruGISMap: React.FC<Props> = ({ zones, selectedZone, onSelect
   return (
     <div className="relative h-full min-h-[620px] w-full overflow-hidden rounded-2xl border border-white/10">
       <div ref={el} className="h-full min-h-[620px] w-full" />
-      {layers.rain && <RainCanvas intensity={Math.min(1, cityRain / 25)} className="absolute inset-0 z-[400] h-full w-full" />}
+      {layers.rain && cityRain > 0.3 && <RainCanvas intensity={Math.min(1, cityRain / 25)} className="absolute inset-0 z-[400] h-full w-full" />}
 
       <div className="absolute left-4 top-4 z-[500] flex items-center gap-2 rounded-xl border border-white/10 bg-[#040914]/85 px-3 py-1.5 text-[11.5px] text-slate-200 backdrop-blur">
         <Radio className="h-3.5 w-3.5 animate-pulse text-emerald-300" /> Live · {updated ?? "–"}

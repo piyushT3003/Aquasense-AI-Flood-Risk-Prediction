@@ -278,7 +278,7 @@ export async function fetchRiskForecast(): Promise<any> {
       if (res.ok) return await res.json();
     } catch { /* use mock fallback */ }
   }
-  return { zones: mockEngine.getZones() };
+  return mockEngine.getRiskForecast();
 }
 
 export async function fetchCurrentRainfall(): Promise<any> {

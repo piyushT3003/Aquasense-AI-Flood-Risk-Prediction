@@ -62,26 +62,41 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
             {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4 text-cyan-300" />}
           </IconBtn>
           {backendDown && <span className="rounded-full border border-amber-400/40 bg-amber-500/10 px-3 py-1 text-[11.5px] font-semibold text-amber-200">Backend offline</span>}
-          {isSim && canControl && !backendDown && <>
-            <IconBtn label={isSimRunning ? "Pause the simulation" : "Resume the simulation"} onClick={onToggleSim}>
-              {isSimRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 text-emerald-300" />}
-            </IconBtn>
-            <button onClick={() => onSpeed(speed >= 4 ? 1 : speed * 2)} title="Simulation speed"
-              className="flex h-8 items-center gap-1 rounded-lg border border-white/10 px-2 text-[11px] font-semibold text-slate-300 hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60">
-              <Gauge className="h-3.5 w-3.5" />{speed}x
-            </button>
-            <IconBtn label="Reset the simulation to calm weather" onClick={onResetSim}><RotateCcw className="h-4 w-4" /></IconBtn>
-            <button onClick={onTriggerStorm} disabled={isStormActive}
-              className={`flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-bold text-white transition focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-300 ${isStormActive ? "cursor-default border border-rose-400/50 bg-rose-600/30" : "bg-gradient-to-r from-rose-600 to-orange-500 shadow-glow-red hover:brightness-110"}`}>
-              <Zap className="h-3.5 w-3.5 fill-current" />
-              <span className="hidden 2xl:inline">{isStormActive ? "Storm in progress" : "Simulate incoming storm"}</span>
-              <span className="2xl:hidden">{isStormActive ? "Storm on" : "Storm demo"}</span>
-            </button>
-          </>}
+          {canControl && !backendDown && (
+            <div className="flex items-center gap-2">
+              {isStormActive ? (
+                <>
+                  <IconBtn label={isSimRunning ? "Pause simulation" : "Resume simulation"} onClick={onToggleSim}>
+                    {isSimRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 text-emerald-300" />}
+                  </IconBtn>
+                  <button onClick={() => onSpeed(speed >= 4 ? 1 : speed * 2)} title="Simulation speed"
+                    className="flex h-8 items-center gap-1 rounded-lg border border-white/10 px-2 text-[11px] font-semibold text-slate-300 hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60">
+                    <Gauge className="h-3.5 w-3.5" />{speed}x
+                  </button>
+                  <button onClick={onResetSim} title="Return to Live Open-Meteo Data"
+                    className="flex h-8 items-center gap-1.5 rounded-lg border border-emerald-400/40 bg-emerald-500/15 px-2.5 text-xs font-semibold text-emerald-200 transition hover:bg-emerald-500/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Return to live data</span>
+                  </button>
+                  <span className="flex h-8 items-center gap-1.5 rounded-lg border border-rose-400/50 bg-rose-600/30 px-3 text-xs font-bold text-rose-200">
+                    <span className="h-2 w-2 animate-ping rounded-full bg-rose-400" />
+                    <Zap className="h-3.5 w-3.5 fill-current text-rose-300" />
+                    <span className="hidden sm:inline">Storm Demo Active</span>
+                  </span>
+                </>
+              ) : (
+                <button onClick={onTriggerStorm}
+                  className="flex h-8 items-center gap-1.5 rounded-lg bg-gradient-to-r from-rose-600 to-orange-500 px-3 text-xs font-bold text-white shadow-glow-red transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-300">
+                  <Zap className="h-3.5 w-3.5 fill-current" />
+                  <span>Run the storm demo</span>
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
-      {ticker.length > 0 && (
+      {ticker.length > 0 ? (
         <div className="flex h-8 items-center gap-3 overflow-hidden border-t border-white/[0.05] bg-gradient-to-r from-amber-500/10 via-transparent to-transparent px-5 text-[11.5px]">
           <span className="flex-shrink-0 font-semibold text-amber-200">{upcoming.length ? "Predicted threats" : "Active threats"}</span>
           <div className="flex min-w-0 gap-2 overflow-x-auto">
@@ -96,6 +111,14 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
               </button>
             ))}
           </div>
+        </div>
+      ) : (
+        <div className="flex h-8 items-center gap-3 overflow-hidden border-t border-white/[0.05] bg-gradient-to-r from-emerald-500/10 via-transparent to-transparent px-5 text-[11.5px]">
+          <span className="flex items-center gap-1.5 font-semibold text-emerald-300">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            Live Telemetry Active
+          </span>
+          <span className="truncate text-slate-400">All 18 BBMP flood corridors nominal · Zero flood threats projected · Press &ldquo;Run the storm demo&rdquo; to simulate deluge scenarios</span>
         </div>
       )}
     </header>

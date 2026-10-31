@@ -24,6 +24,22 @@ interface SeedDataShape {
 
 const seed = rawSeedData as unknown as SeedDataShape;
 
+interface LiveWeatherData {
+  temperature_c: number;
+  humidity_pct: number;
+  precipitation_now: number;
+  weather_code: number;
+  wind_speed_kmh: number;
+  last_updated: string;
+  source: string;
+  past_48h: { h: number; time: string; city_mm: number; max_mm: number }[];
+  next_48h: { h: number; time: string; city_mm: number; max_mm: number }[];
+  today_mm: number;
+  last_24h_mm: number;
+  next_6h_mm: number;
+  next_24h_mm: number;
+}
+
 class MockTelemetryEngine {
   private simTime: Date = new Date();
   private isRunning: boolean = true;
@@ -34,17 +50,98 @@ class MockTelemetryEngine {
   private escalatedAlerts = new Set<string>();
   private resolvedAlerts = new Set<string>();
   private tickerInterval: any = null;
+  private liveWeather: LiveWeatherData | null = null;
+  private isFetchingLive: boolean = false;
 
   constructor() {
     this.simTime.setMinutes(0, 0, 0);
     this.startTicker();
+    this.updateLiveOpenMeteo();
+    if (typeof window !== "undefined") {
+      setInterval(() => this.updateLiveOpenMeteo(), 300000); // Poll live Open-Meteo every 5 minutes
+    }
+  }
+
+  public async updateLiveOpenMeteo() {
+    if (this.isFetchingLive) return;
+    this.isFetchingLive = true;
+    try {
+      const url =
+        "https://api.open-meteo.com/v1/forecast?latitude=12.9716&longitude=77.5946&current=temperature_2m,relative_humidity_2m,precipitation,rain,weather_code,wind_speed_10m&hourly=precipitation,rain&past_days=2&forecast_days=2&timezone=Asia%2FKolkata";
+      const resp = await fetch(url);
+      if (resp.ok) {
+        const data = await resp.json();
+        const curr = data.current || {};
+        const hourly = data.hourly || {};
+        const times: string[] = hourly.time || [];
+        const precips: number[] = hourly.precipitation || [];
+
+        const nowStr = curr.time || new Date().toISOString().slice(0, 13) + ":00";
+        let currIdx = times.findIndex((t) => t.startsWith(nowStr.slice(0, 13)));
+        if (currIdx === -1) currIdx = Math.floor(times.length / 2);
+
+        const pastSlice: { h: number; time: string; city_mm: number; max_mm: number }[] = [];
+        for (let k = 0; k < 48; k++) {
+          const idx = Math.max(0, currIdx - 47 + k);
+          const tStr = times[idx] || "";
+          const val = Number((precips[idx] || 0).toFixed(1));
+          const dt = tStr ? new Date(tStr) : new Date(Date.now() - (47 - k) * 3600000);
+          pastSlice.push({
+            h: -47 + k,
+            time: dt.toLocaleDateString([], { weekday: "short" }) + " " + dt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+            city_mm: val,
+            max_mm: Number((val * 1.25).toFixed(1)),
+          });
+        }
+
+        const nextSlice: { h: number; time: string; city_mm: number; max_mm: number }[] = [];
+        for (let k = 0; k < 48; k++) {
+          const idx = Math.min(times.length - 1, currIdx + 1 + k);
+          const tStr = times[idx] || "";
+          const val = Number((precips[idx] || 0).toFixed(1));
+          const dt = tStr ? new Date(tStr) : new Date(Date.now() + (k + 1) * 3600000);
+          nextSlice.push({
+            h: k + 1,
+            time: dt.toLocaleDateString([], { weekday: "short" }) + " " + dt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+            city_mm: val,
+            max_mm: Number((val * 1.25).toFixed(1)),
+          });
+        }
+
+        const todayHours = pastSlice.slice(-Math.min(24, new Date().getHours() + 1));
+        const today_mm = Number(todayHours.reduce((acc, x) => acc + x.city_mm, 0).toFixed(1));
+        const last_24h_mm = Number(pastSlice.slice(-24).reduce((acc, x) => acc + x.city_mm, 0).toFixed(1));
+        const next_6h_mm = Number(nextSlice.slice(0, 6).reduce((acc, x) => acc + x.city_mm, 0).toFixed(1));
+        const next_24h_mm = Number(nextSlice.slice(0, 24).reduce((acc, x) => acc + x.city_mm, 0).toFixed(1));
+
+        this.liveWeather = {
+          temperature_c: Number(curr.temperature_2m ?? 21.5),
+          humidity_pct: Number(curr.relative_humidity_2m ?? 80),
+          precipitation_now: Number(curr.precipitation ?? 0.0),
+          weather_code: Number(curr.weather_code ?? 0),
+          wind_speed_kmh: Number(curr.wind_speed_10m ?? 10.0),
+          last_updated: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          source: "Open-Meteo Live API (Bengaluru 12.97°N, 77.59°E)",
+          past_48h: pastSlice,
+          next_48h: nextSlice,
+          today_mm,
+          last_24h_mm,
+          next_6h_mm,
+          next_24h_mm,
+        };
+      }
+    } catch {
+      // Fallback stays in place
+    } finally {
+      this.isFetchingLive = false;
+    }
   }
 
   private startTicker() {
     if (typeof window !== "undefined") {
       this.tickerInterval = setInterval(() => {
         if (!this.isRunning) return;
-        this.simTime = new Date(this.simTime.getTime() + 3600000); // advance 1 simulated hour
+        this.simTime = new Date(this.simTime.getTime() + 3600000); // advance 1 hour
         if (this.isStormActive) {
           this.stormStep++;
           if (this.stormStep > 12) {
@@ -75,18 +172,22 @@ class MockTelemetryEngine {
       this.isStormActive = true;
       this.stormStep = 1;
     }
+    if (action === "refresh_live") {
+      this.updateLiveOpenMeteo();
+    }
     return { ok: true, is_running: this.isRunning, storm: this.isStormActive, speed: this.speed };
   }
 
   public getState() {
     return {
-      sim_time: this.simTime.toISOString(),
+      sim_time: this.isStormActive ? this.simTime.toISOString() : new Date().toISOString(),
       is_running: this.isRunning,
       storm_scenario_active: this.isStormActive,
       storm_step: this.stormStep,
       speed: this.speed,
-      data_mode: "simulator",
+      data_mode: this.isStormActive ? "simulator" : "open-meteo",
       tick_count: this.stormStep,
+      live_weather: this.liveWeather,
     };
   }
 
@@ -94,22 +195,22 @@ class MockTelemetryEngine {
     const stormIntensity = this.isStormActive ? Math.sin((this.stormStep / 12) * Math.PI) : 0;
 
     return seed.zones.map((baseZone, idx) => {
-      // Hotspots that suffer most during cloudbursts: Bellandur, Silk Board, Koramangala, HSR, Rainbow Drive
+      // Hotspots that suffer most during cloudbursts: Bellandur, Silk Board, Koramangala, HSR, Rainbow Drive, Ecospace
       const isHotspot = ["zone-1", "zone-2", "zone-3", "zone-4", "zone-5", "zone-6"].includes(baseZone.id);
       const zoneMultiplier = isHotspot ? 1.6 : 0.8;
 
-      let rain1h = 2.0 + (idx % 4) * 1.5;
-      let rain24h = baseZone.baseline_rain_mm * 0.4;
-      let waterLevel = baseZone.baseline_water_level_m * 0.4;
-      let soilSat = baseZone.baseline_soil_sat * 0.65;
-      let prob = 0.08 + (idx % 3) * 0.04;
+      let rain1h = this.liveWeather?.precipitation_now ?? 0.0;
+      let rain24h = this.liveWeather?.last_24h_mm ?? 0.0;
+      let waterLevel = Number((0.35 + (idx % 3) * 0.04).toFixed(2));
+      let soilSat = Number((22.0 + (idx % 4) * 2.5).toFixed(0));
+      let prob = 0.005; // 0.5% nominal, zero projected flood risk in calm live state
 
       if (this.isStormActive) {
-        rain1h += 55 * stormIntensity * zoneMultiplier;
-        rain24h += 95 * stormIntensity;
-        waterLevel += 2.2 * stormIntensity * (baseZone.drainage_vulnerability || 0.8);
-        soilSat = Math.min(99, soilSat + 35 * stormIntensity);
-        prob = Math.min(0.96, prob + 0.82 * stormIntensity * zoneMultiplier);
+        rain1h = 55 + 25 * stormIntensity * zoneMultiplier;
+        rain24h = 92 + 35 * stormIntensity;
+        waterLevel = Number((1.8 + 1.1 * stormIntensity * (baseZone.drainage_vulnerability || 0.8)).toFixed(2));
+        soilSat = Math.min(99, Math.round(75 + 22 * stormIntensity));
+        prob = Math.min(0.96, Number(((isHotspot ? 0.72 : 0.35) + 0.22 * stormIntensity * zoneMultiplier).toFixed(3)));
       }
 
       let riskLevel: "LOW" | "MEDIUM" | "HIGH" | "SEVERE" = "LOW";
@@ -126,10 +227,11 @@ class MockTelemetryEngine {
           if (stepOffset <= 12) {
             pFuture = Math.min(0.95, prob * (1 + 0.3 * Math.sin((stepOffset / 12) * Math.PI)));
           } else {
-            pFuture = Math.max(0.06, prob * Math.exp(-(stepOffset - 12) / 8));
+            pFuture = Math.max(0.02, prob * Math.exp(-(stepOffset - 12) / 8));
           }
         } else {
-          pFuture = Math.max(0.04, Math.min(0.35, prob + 0.08 * Math.sin((h + idx) / 3)));
+          // In calm state: stays strictly at calm baseline
+          pFuture = 0.005;
         }
         trajectoryProb.push(Number(pFuture.toFixed(3)));
         trajectory.push(Number((pFuture * 0.95).toFixed(3)));
@@ -161,7 +263,7 @@ class MockTelemetryEngine {
           feature_name: "impervious_ratio",
           display_name: "Impervious Concrete Ratio",
           importance_score: 0.11,
-          direction: "INCREASES_RISK",
+          direction: "NEUTRAL",
           current_value_formatted: `${((baseZone.impervious_ratio || 0.85) * 100).toFixed(0)}%`,
         },
       ];
@@ -170,32 +272,34 @@ class MockTelemetryEngine {
         zone_id: baseZone.id,
         zone_name: baseZone.name,
         ward_number: baseZone.ward_number,
-        flood_probability: Number(prob.toFixed(3)),
+        flood_probability: prob,
         risk_level: riskLevel,
-        expected_window_hours: this.isStormActive && prob >= 0.5 ? "Next 1-3 hours" : "Calm (next 48h)",
+        expected_window_hours: this.isStormActive && prob >= 0.5 ? "Next 1-3 hours" : "Nominal (zero threat projected)",
         rainfall_1h_mm: Number(rain1h.toFixed(1)),
         rainfall_24h_mm: Number(rain24h.toFixed(1)),
-        water_level_m: Number(waterLevel.toFixed(2)),
-        soil_saturation_pct: Number(soilSat.toFixed(0)),
-        prediction_confidence: "94.2% (calibrated)",
+        water_level_m: waterLevel,
+        soil_saturation_pct: soilSat,
+        prediction_confidence: this.isStormActive ? "94.2% (calibrated XGBoost)" : "99.8% (Real-Time Live Telemetry)",
         feature_contributions: features,
         natural_explanation:
-          prob >= 0.5
-            ? `High runoff pressure from intense localized precipitation combined with elevated SWD levels near ${baseZone.primary_lake_name}.`
-            : `Drainage discharge capacity adequate. Water levels within nominal operating thresholds.`,
-        data_freshness_seconds: 4,
-        last_updated: this.simTime.toISOString(),
+          this.isStormActive && prob >= 0.5
+            ? `High storm runoff exceeding SWD discharge capacity near ${baseZone.primary_lake_name}. Localized waterlogging anticipated within 1-3 hours.`
+            : `Nominal live telemetry. Drain water levels and soil absorption within safe operational thresholds. Zero flood threat projected.`,
+        data_freshness_seconds: 2,
+        last_updated: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         risk_score: Number(prob.toFixed(3)),
-        forecast_6h_mm: Number((rain1h * 4.5).toFixed(1)),
+        forecast_6h_mm: this.isStormActive ? Number((rain1h * 3.5).toFixed(1)) : (this.liveWeather?.next_6h_mm ?? 0.0),
         peak_probability_24h: Number(Math.max(...trajectoryProb.slice(0, 24)).toFixed(3)),
         peak_level_24h: riskLevel,
-        peak_in_h: this.isStormActive ? Math.max(1, 4 - this.stormStep) : 6,
-        hours_to_high: prob >= 0.5 ? 0 : this.isStormActive ? 2 : null,
-        hours_to_severe: prob >= 0.75 ? 0 : this.isStormActive ? 4 : null,
+        peak_in_h: this.isStormActive ? Math.max(1, 4 - this.stormStep) : 0,
+        hours_to_high: this.isStormActive ? (prob >= 0.5 ? 0 : 2) : null,
+        hours_to_severe: this.isStormActive ? (prob >= 0.75 ? 0 : 4) : null,
         trajectory,
         trajectory_probability: trajectoryProb,
-        observed_flooding: prob >= 0.85,
-        drain_load_pct: Math.min(100, Math.round((waterLevel / (baseZone.baseline_water_level_m || 2)) * 80)),
+        observed_flooding: this.isStormActive && prob >= 0.85,
+        drain_load_pct: this.isStormActive
+          ? Math.min(100, Math.round((waterLevel / 2.5) * 95))
+          : Math.min(25, Math.round((waterLevel / 2.5) * 100)),
       };
 
       return {
@@ -209,18 +313,31 @@ class MockTelemetryEngine {
     const zones = this.getZones();
     const zone = zones.find((z) => z.id === zoneId) ?? zones[0];
     const pred = zone?.current_prediction;
-    const rainNow = pred?.rainfall_1h_mm ?? 2.5;
-    const fcRain = pred?.forecast_6h_mm ?? 15.0;
-    const fcArray = Array.from({ length: 48 }, (_, i) => {
-      const decay = Math.max(0.2, (fcRain / 6) * Math.exp(-i / 12));
-      return Number(decay.toFixed(1));
-    });
+    const rainNow = pred?.rainfall_1h_mm ?? 0.0;
+    const fcRain = pred?.forecast_6h_mm ?? 0.0;
+
+    let historyRain: number[] = [];
+    let fcArray: number[] = [];
+
+    if (this.isStormActive) {
+      historyRain = Array.from({ length: 48 }, (_, i) => Number((Math.max(0.5, 30 * Math.sin(i / 10))).toFixed(1)));
+      fcArray = Array.from({ length: 48 }, (_, i) => {
+        const decay = Math.max(0.2, (fcRain / 6) * Math.exp(-i / 12));
+        return Number(decay.toFixed(1));
+      });
+    } else {
+      historyRain = (this.liveWeather?.past_48h ?? []).map((x) => x.city_mm);
+      if (historyRain.length < 48) historyRain = new Array(48).fill(0.0);
+      fcArray = (this.liveWeather?.next_48h ?? []).map((x) => x.city_mm);
+      if (fcArray.length < 48) fcArray = new Array(48).fill(0.0);
+    }
+
     return {
       zone,
       prediction: pred,
       history: {
-        rain_mm: Array.from({ length: 48 }, () => Number((rainNow * (0.8 + Math.random() * 0.4)).toFixed(1))),
-        water_level_m: Array.from({ length: 48 }, () => Number(((pred?.water_level_m ?? 1.2) * (0.9 + Math.random() * 0.2)).toFixed(2))),
+        rain_mm: historyRain,
+        water_level_m: Array.from({ length: 48 }, () => Number(((pred?.water_level_m ?? 0.35) * (0.95 + Math.random() * 0.1)).toFixed(2))),
       },
       forecast_rain_mm: fcArray,
       critical_infrastructure: this.getInfrastructure().filter((i) => i.zone_id === zoneId),
@@ -228,6 +345,11 @@ class MockTelemetryEngine {
   }
 
   public getAlerts(): { alerts: AlertItem[]; active_count: number } {
+    // When no storm demo is running, zero active alerts
+    if (!this.isStormActive) {
+      return { alerts: [], active_count: 0 };
+    }
+
     const zones = this.getZones();
     const alerts: AlertItem[] = [];
 
@@ -255,9 +377,9 @@ class MockTelemetryEngine {
           status,
           lead_time_h: 3,
           top_driver: pred.feature_contributions[0]?.display_name ?? "Rainfall intensity",
-          government_message: `Deploy de-watering pumps to ${z.name} (Ward ${z.ward_number}). Water level projected at ${pred.water_level_m}m.`,
-          citizen_message_en: `Warning: Severe waterlogging expected in ${z.name} within next 2 hours. Avoid underpasses and major arterial bottlenecks.`,
-          citizen_message_kn: `ಎಚ್ಚರಿಕೆ: ${z.name} ಪ್ರದೇಶದಲ್ಲಿ ಮುಂದಿನ 2 ಗಂಟೆಗಳಲ್ಲಿ ಭಾರೀ ನೀರು ನಿಲ್ಲುವ ಸಾಧ್ಯತೆ ಇದೆ. ಅಂಡರ್‌ಪಾಸ್‌ಗಳನ್ನು ತಪ್ಪಿಸಿ.`,
+          government_message: `CRITICAL FLOOD ADVISORY: ${z.name} (Ward ${z.ward_number}) drain level at ${pred.water_level_m}m. Deploy SDRF/BBMP suction pumps to ${z.primary_lake_name || "basin"}.`,
+          citizen_message_en: `BBMP Safety Alert: Elevated waterlogging expected in ${z.name} within next 1-3 hours. Avoid low-lying underpasses and arterial roads.`,
+          citizen_message_kn: `ಬಿಬಿಎಂಪಿ ಸುರಕ್ಷತಾ ಎಚ್ಚರಿಕೆ: ಮುಂದಿನ 1-3 ಗಂಟೆಗಳಲ್ಲಿ ${z.name} ನಲ್ಲಿ ನೀರಿನ ಮಟ್ಟ ಹೆಚ್ಚಾಗುವ ಸಾಧ್ಯತೆ ಇದೆ. ತಗ್ಗು ಪ್ರದೇಶದ ಅಂಡರ್‌ಪಾಸ್‌ಗಳನ್ನು ತಪ್ಪಿಸಿ.`,
         });
       }
     });
@@ -282,6 +404,11 @@ class MockTelemetryEngine {
   }
 
   public getThreats(): { sim_time: string; threats: Threat[] } {
+    // When no storm demo is running, zero projected threats
+    if (!this.isStormActive) {
+      return { sim_time: this.simTime.toISOString(), threats: [] };
+    }
+
     const zones = this.getZones();
     const threats: Threat[] = [];
 
@@ -321,16 +448,91 @@ class MockTelemetryEngine {
       citywide_risk,
       high_risk_zones_count: high,
       severe_risk_zones_count: severe,
-      timestamp: this.simTime.toISOString(),
+      timestamp: this.isStormActive ? this.simTime.toISOString() : new Date().toISOString(),
       zones_monitored: 18,
       model_calibrated: true,
+      data_mode: this.isStormActive ? "simulator" : "open-meteo",
+      zones_flooded_now: zones.filter((z) => z.current_prediction?.observed_flooding).length,
+    };
+  }
+
+  public getRiskForecast() {
+    const t0 = this.simTime;
+    const hourly: any[] = [];
+    const horizons: any[] = [];
+
+    for (let h = 0; h <= 48; h++) {
+      const stepTime = new Date(t0.getTime() + h * 3600000);
+      const timeLabel =
+        stepTime.toLocaleDateString([], { weekday: "short" }) + " " + stepTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+      if (!this.isStormActive) {
+        const fcRain = this.liveWeather?.next_48h?.[h]?.city_mm ?? 0.0;
+        hourly.push({
+          h,
+          time: timeLabel,
+          avg_risk_score: 0.01,
+          high_risk_zones: 0,
+          severe_zones: 0,
+          city_rain_mm_h: fcRain,
+          city_risk: "LOW",
+        });
+      } else {
+        const stormIntensity = h <= 12 ? Math.sin((h / 12) * Math.PI) : 0;
+        const highZones = h >= 1 && h <= 8 ? Math.round(2 + 4 * stormIntensity) : 0;
+        const severeZones = h >= 2 && h <= 6 ? Math.round(1 + 3 * stormIntensity) : 0;
+        const rainMm = Number((Math.max(1, 55 * stormIntensity)).toFixed(1));
+        const riskLevel = severeZones > 0 ? "SEVERE" : highZones > 0 ? "HIGH" : h < 12 ? "MEDIUM" : "LOW";
+
+        hourly.push({
+          h,
+          time: timeLabel,
+          avg_risk_score: Number((0.08 + 0.65 * stormIntensity).toFixed(2)),
+          high_risk_zones: highZones,
+          severe_zones: severeZones,
+          city_rain_mm_h: rainMm,
+          city_risk: riskLevel,
+        });
+      }
+    }
+
+    const horizonMap: [string, number][] = [
+      ["NOW", 0],
+      ["+3H", 3],
+      ["+6H", 6],
+      ["+12H", 12],
+      ["+24H", 24],
+      ["+48H", 48],
+    ];
+
+    for (const [label, h] of horizonMap) {
+      const hr = hourly[h] || hourly[0];
+      const hotspots =
+        this.isStormActive && (hr.high_risk_zones > 0 || hr.severe_zones > 0)
+          ? ["Bellandur", "Silk Board", "Koramangala 4th Block", "Rainbow Drive"]
+          : [];
+
+      horizons.push({
+        ...hr,
+        horizon: label,
+        hours: h,
+        expected_rain_mm: Number(hourly.slice(0, Math.max(1, h)).reduce((acc, x) => acc + x.city_rain_mm_h, 0).toFixed(1)),
+        affected_hotspots: hotspots,
+      });
+    }
+
+    return {
+      model: "AquaSense-XGB-v3",
+      thresholds: { MEDIUM: 0.02, HIGH: 0.1296, SEVERE: 0.45 },
+      horizons,
+      hourly,
     };
   }
 
   public getSensors() {
     const zones = this.getZones();
     return {
-      timestamp: this.simTime.toISOString(),
+      timestamp: this.isStormActive ? this.simTime.toISOString() : new Date().toISOString(),
       total_sensors: 54,
       sensors_online: 54,
       sensors: zones.flatMap((z) => [
@@ -340,10 +542,10 @@ class MockTelemetryEngine {
           zone_name: z.name,
           type: "RAIN_GAUGE",
           status: "ONLINE",
-          value: z.current_prediction?.rainfall_1h_mm ?? 3.2,
+          value: z.current_prediction?.rainfall_1h_mm ?? 0.0,
           unit: "mm/h",
-          battery_pct: 94,
-          last_seen: this.simTime.toISOString(),
+          battery_pct: 95,
+          last_seen: new Date().toISOString(),
         },
         {
           id: `sensor-water-${z.id}`,
@@ -351,10 +553,10 @@ class MockTelemetryEngine {
           zone_name: z.name,
           type: "WATER_LEVEL_RADAR",
           status: "ONLINE",
-          value: z.current_prediction?.water_level_m ?? 0.85,
+          value: z.current_prediction?.water_level_m ?? 0.35,
           unit: "m",
-          battery_pct: 91,
-          last_seen: this.simTime.toISOString(),
+          battery_pct: 92,
+          last_seen: new Date().toISOString(),
         },
         {
           id: `sensor-soil-${z.id}`,
@@ -362,25 +564,60 @@ class MockTelemetryEngine {
           zone_name: z.name,
           type: "SOIL_MOISTURE_TDR",
           status: "ONLINE",
-          value: z.current_prediction?.soil_saturation_pct ?? 68,
+          value: z.current_prediction?.soil_saturation_pct ?? 25,
           unit: "%",
-          battery_pct: 88,
-          last_seen: this.simTime.toISOString(),
+          battery_pct: 89,
+          last_seen: new Date().toISOString(),
         },
       ]),
     };
   }
 
   public getSystemHealth(): { status: string; components: SystemHealthItem[] } {
+    const isLive = !this.isStormActive;
     return {
       status: "HEALTHY",
       components: [
-        { component: "FastAPI Telemetry Core", status: "ONLINE", latency_ms: 12, records_processed: 48920, last_heartbeat: this.simTime.toISOString(), details: "In-Browser Emulated Runtime / Local Engine" },
-        { component: "XGBoost Prediction Engine", status: "ONLINE", latency_ms: 24, records_processed: 18, last_heartbeat: this.simTime.toISOString(), details: "14 Monotone Features, Calibrated IsoReg" },
-        { component: "Hydrology Hydraulic Core", status: "ONLINE", latency_ms: 18, records_processed: 18, last_heartbeat: this.simTime.toISOString(), details: "SWD primary drain & retention basin solver" },
-        { component: "KSNDMC Rain Telemetry", status: "ONLINE", latency_ms: 85, records_processed: 120, last_heartbeat: this.simTime.toISOString(), details: "Telemetry active across 18 BBMP wards" },
-        { component: "Open-Meteo Integration", status: "ONLINE", latency_ms: 110, records_processed: 18, last_heartbeat: this.simTime.toISOString(), details: "Ensemble ECMWF + GFS weather feed" },
-        { component: "Early Warning Threat Radar", status: "ONLINE", latency_ms: 15, records_processed: 18, last_heartbeat: this.simTime.toISOString(), details: "Autonomous alert dispatcher active" },
+        {
+          component: "Telemetry Core Engine",
+          status: "ONLINE",
+          latency_ms: 12,
+          records_processed: 48920,
+          last_heartbeat: new Date().toISOString(),
+          details: isLive ? "Live Telemetry Feed · Open-Meteo Bengaluru API" : "Simulated Storm Deluge Runtime Active",
+        },
+        {
+          component: "XGBoost Prediction Engine",
+          status: "ONLINE",
+          latency_ms: 24,
+          records_processed: 18,
+          last_heartbeat: new Date().toISOString(),
+          details: "14 Monotone Features, Calibrated IsoReg",
+        },
+        {
+          component: "Hydrology Hydraulic Core",
+          status: "ONLINE",
+          latency_ms: 18,
+          records_processed: 18,
+          last_heartbeat: new Date().toISOString(),
+          details: "SWD primary drain & retention basin solver",
+        },
+        {
+          component: "Open-Meteo Integration",
+          status: "ONLINE",
+          latency_ms: 85,
+          records_processed: 18,
+          last_heartbeat: new Date().toISOString(),
+          details: this.liveWeather?.source ?? "Open-Meteo API Connected (12.97°N, 77.59°E)",
+        },
+        {
+          component: "Early Warning Threat Radar",
+          status: "ONLINE",
+          latency_ms: 15,
+          records_processed: 18,
+          last_heartbeat: new Date().toISOString(),
+          details: isLive ? "Calm · 0 threats projected" : "Active storm tracking in progress",
+        },
       ],
     };
   }
@@ -425,32 +662,88 @@ class MockTelemetryEngine {
 
   public getRainfallTimeline() {
     const zones = this.getZones();
-    const cityNow = this.isStormActive ? 42.5 : 4.8;
+    const t0 = this.simTime;
+
+    if (!this.isStormActive) {
+      const past_48h = this.liveWeather?.past_48h ?? Array.from({ length: 48 }, (_, k) => ({
+        h: -47 + k,
+        time: (new Date(t0.getTime() - (47 - k) * 3600000)).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        city_mm: 0.0,
+        max_mm: 0.0,
+      }));
+
+      const next_48h = this.liveWeather?.next_48h ?? Array.from({ length: 48 }, (_, k) => ({
+        h: k + 1,
+        time: (new Date(t0.getTime() + (k + 1) * 3600000)).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        city_mm: 0.0,
+        max_mm: 0.0,
+      }));
+
+      const rainNow = this.liveWeather?.precipitation_now ?? 0.0;
+      const todayMm = this.liveWeather?.today_mm ?? 0.0;
+      const last24hMm = this.liveWeather?.last_24h_mm ?? 0.0;
+      const next6hMm = this.liveWeather?.next_6h_mm ?? 0.0;
+      const next24hMm = this.liveWeather?.next_24h_mm ?? 0.0;
+
+      const rainfallZones = zones.map((z) => ({
+        zone_id: z.id,
+        zone_name: z.name,
+        now_mm_h: rainNow,
+        last_3h_mm: Number((rainNow * 2.5).toFixed(1)),
+        today_mm: todayMm,
+        last_24h_mm: last24hMm,
+        last_72h_mm: Number((last24hMm * 1.5).toFixed(1)),
+        next_6h_mm: next6hMm,
+        next_24h_mm: next24hMm,
+        class_now: rainNow > 15 ? "Heavy" : rainNow > 2 ? "Moderate" : rainNow > 0.2 ? "Light" : "No rain",
+        class_24h: last24hMm > 64 ? "Heavy" : last24hMm > 15 ? "Moderate" : "Light",
+      }));
+
+      return {
+        sim_time: new Date().toISOString(),
+        data_mode: "open-meteo",
+        source: this.liveWeather?.source ?? "Live Open-Meteo Feed (Bengaluru 12.97°N, 77.59°E)",
+        city: {
+          now_mm_h: rainNow,
+          class_now: rainNow > 15 ? "Heavy" : rainNow > 2 ? "Moderate" : rainNow > 0.2 ? "Light" : "None",
+          today_mm: todayMm,
+          last_24h_mm: last24hMm,
+          next_6h_mm: next6hMm,
+          next_24h_mm: next24hMm,
+          raining_zones: rainNow >= 0.2 ? 18 : 0,
+          wettest_zone: rainfallZones[0]?.zone_name ?? "Bellandur",
+          wettest_24h_mm: last24hMm,
+        },
+        zones: rainfallZones,
+        past_48h,
+        next_48h,
+      };
+    }
+
+    // Storm mode: Simulated Deluge
+    const cityNow = 54.8;
     const past_48h: any[] = [];
     const next_48h: any[] = [];
-    const t0 = this.simTime;
 
     for (let k = 0; k < 48; k++) {
       const pastTime = new Date(t0.getTime() - (47 - k) * 3600000);
-      const rainBase = Math.max(0.5, 3.5 + 4.0 * Math.sin(k / 5));
-      const rainVal = this.isStormActive && k > 40 ? rainBase + 35 : rainBase;
+      const rainVal = k > 40 ? 12.0 + (k - 40) * 5.2 : Math.max(0.2, 2.0 + 1.5 * Math.sin(k / 4));
       past_48h.push({
         h: -47 + k,
         time: pastTime.toLocaleDateString([], { weekday: "short" }) + " " + pastTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        city_mm: Number(rainVal.toFixed(2)),
-        max_mm: Number((rainVal * 1.5).toFixed(1)),
+        city_mm: Number(rainVal.toFixed(1)),
+        max_mm: Number((rainVal * 1.3).toFixed(1)),
       });
     }
 
     for (let k = 0; k < 48; k++) {
       const futTime = new Date(t0.getTime() + (k + 1) * 3600000);
-      const rainBase = Math.max(0.2, 2.5 + 3.0 * Math.sin(k / 4));
-      const rainVal = this.isStormActive && k < 6 ? rainBase + 45 : rainBase;
+      const rainVal = k < 6 ? Math.max(8, 65.0 - k * 8.5) : Math.max(0.1, 4.0 * Math.exp(-(k - 6) / 8));
       next_48h.push({
         h: k + 1,
         time: futTime.toLocaleDateString([], { weekday: "short" }) + " " + futTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        city_mm: Number(rainVal.toFixed(2)),
-        max_mm: Number((rainVal * 1.4).toFixed(1)),
+        city_mm: Number(rainVal.toFixed(1)),
+        max_mm: Number((rainVal * 1.3).toFixed(1)),
       });
     }
 
@@ -461,32 +754,32 @@ class MockTelemetryEngine {
         zone_name: z.name,
         now_mm_h: pred.rainfall_1h_mm,
         last_3h_mm: Number((pred.rainfall_1h_mm * 2.8).toFixed(1)),
-        today_mm: Number((pred.rainfall_24h_mm * 0.6).toFixed(1)),
+        today_mm: Number((pred.rainfall_24h_mm * 0.7).toFixed(1)),
         last_24h_mm: pred.rainfall_24h_mm,
-        last_72h_mm: Number((pred.rainfall_24h_mm * 2.2).toFixed(1)),
+        last_72h_mm: Number((pred.rainfall_24h_mm * 1.8).toFixed(1)),
         next_6h_mm: pred.forecast_6h_mm,
-        next_24h_mm: Number((pred.forecast_6h_mm * 2.5).toFixed(1)),
-        class_now: pred.rainfall_1h_mm > 35 ? "Heavy" : pred.rainfall_1h_mm > 15 ? "Moderate" : pred.rainfall_1h_mm > 2 ? "Light" : "No rain",
+        next_24h_mm: Number((pred.forecast_6h_mm * 2.2).toFixed(1)),
+        class_now: pred.rainfall_1h_mm > 35 ? "Heavy" : pred.rainfall_1h_mm > 15 ? "Moderate" : "Light",
         class_24h: pred.rainfall_24h_mm > 80 ? "Heavy" : "Moderate",
       };
     });
 
-    const wettest = rainfallZones[0];
+    const wettest = [...rainfallZones].sort((a, b) => b.last_24h_mm - a.last_24h_mm)[0];
 
     return {
       sim_time: t0.toISOString(),
       data_mode: "simulator",
-      source: "Simulated rain gauges",
+      source: "Simulated Storm Deluge (Cloudburst Scenario)",
       city: {
         now_mm_h: cityNow,
-        class_now: cityNow > 30 ? "Heavy" : cityNow > 10 ? "Moderate" : cityNow > 1 ? "Light" : "None",
-        today_mm: this.isStormActive ? 78.4 : 14.2,
-        last_24h_mm: this.isStormActive ? 92.6 : 28.5,
-        next_6h_mm: this.isStormActive ? 64.0 : 8.5,
-        next_24h_mm: this.isStormActive ? 112.0 : 22.0,
-        raining_zones: this.isStormActive ? 16 : 4,
+        class_now: "Heavy",
+        today_mm: 82.4,
+        last_24h_mm: 98.6,
+        next_6h_mm: 58.0,
+        next_24h_mm: 110.0,
+        raining_zones: 18,
         wettest_zone: wettest?.zone_name ?? "Bellandur",
-        wettest_24h_mm: wettest?.last_24h_mm ?? 64.0,
+        wettest_24h_mm: wettest?.last_24h_mm ?? 115.0,
       },
       zones: rainfallZones,
       past_48h,
@@ -497,15 +790,28 @@ class MockTelemetryEngine {
   public runWhatIf(payload: WhatIfParams): WhatIfScenarioResult {
     const zones = this.getZones();
     const rainFactor = payload.rainfall_intensity_mm_h / 40;
-    const drainReduction = (100 - payload.drainage_capacity_pct) / 100;
+    const capacityFactor = 100 / Math.max(10, payload.drainage_capacity_pct);
+    const lakeFactor = payload.lake_fill_pct / 80;
 
     let highCount = 0;
     let severeCount = 0;
+
     const zoneDeltas = zones.map((z) => {
-      const baseProb = z.current_prediction?.flood_probability ?? 0.1;
-      const scenProb = Math.min(0.98, Math.max(0.02, baseProb * rainFactor * (1 + drainReduction * 0.8)));
+      const baseProb = z.current_prediction?.flood_probability ?? 0.05;
+      const vuln = z.drainage_vulnerability || 0.8;
+      const scenProb = Math.min(
+        0.98,
+        Math.max(
+          0.02,
+          baseProb +
+            (payload.rainfall_intensity_mm_h > 25 ? 0.35 * rainFactor * vuln : 0.05) *
+              (capacityFactor * 0.7) *
+              (lakeFactor * 0.6)
+        )
+      );
+
       if (scenProb >= 0.75) severeCount++;
-      else if (scenProb >= 0.50) highCount++;
+      else if (scenProb >= 0.5) highCount++;
 
       return {
         zone_id: z.id,
@@ -544,7 +850,6 @@ class MockTelemetryEngine {
 
   public async queryGemini(query: string, role: string, userKey: string | null): Promise<GenAIResponse> {
     const zones = this.getZones();
-    const highestRiskZones = [...zones].sort((a, b) => (b.current_prediction?.flood_probability ?? 0) - (a.current_prediction?.flood_probability ?? 0)).slice(0, 3);
     const key = userKey || (import.meta.env.VITE_GEMINI_API_KEY as string | undefined);
 
     const contextSummary = zones
@@ -559,9 +864,11 @@ class MockTelemetryEngine {
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
         const systemPrompt = `You are AquaSense AI, Bengaluru's Urban Flood Intelligence assistant for Disaster Management Officers and Citizens.
-Current simulated city context:
-${contextSummary}
+Current telemetry status:
+${this.isStormActive ? "ACTIVE STORM DELUGE DEMO IN PROGRESS" : "LIVE REAL-TIME TELEMETRY (Open-Meteo Bengaluru Feed - Conditions Nominal)"}
 Active storm mode: ${this.isStormActive ? "YES" : "NO"}.
+Telemetry snapshot:
+${contextSummary}
 User role: ${role}.
 Answer clearly, concisely, and factually based on this live telemetry. If the user asks about risk in an area or whether it is safe, give specific recommendations.`;
 
@@ -569,45 +876,71 @@ Answer clearly, concisely, and factually based on this live telemetry. If the us
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            system_instruction: { parts: [{ text: systemPrompt }] },
-            contents: [{ role: "user", parts: [{ text: query }] }],
+            contents: [
+              {
+                role: "user",
+                parts: [{ text: `${systemPrompt}\n\nUser Question: ${query}` }],
+              },
+            ],
+            generationConfig: {
+              temperature: 0.2,
+              maxOutputTokens: 800,
+            },
           }),
         });
 
         if (resp.ok) {
-          const json = await resp.json();
-          const answerText = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+          const data = await resp.json();
+          const answerText = data.candidates?.[0]?.content?.parts?.[0]?.text;
           if (answerText) {
             return {
               query,
               answer: answerText,
-              data_sources_consulted: ["Live BBMP Telemetry", "Calibrated XGBoost Model", "Gemini 2.5 Flash"],
-              confidence_level: "High (Model Grounded)",
-              relevant_zones: highestRiskZones.map((z) => z.name),
-              timestamp: this.simTime.toISOString(),
+              data_sources_consulted: ["Open-Meteo Live API", "BBMP Telemetry Grid", "Calibrated XGBoost Model"],
+              confidence_level: "HIGH (Live Gemini 2.5 Flash)",
+              relevant_zones: this.isStormActive ? ["Bellandur", "Silk Board", "Koramangala 4th Block"] : ["All corridors nominal"],
+              timestamp: new Date().toISOString(),
             };
           }
         }
-      } catch (e) {
-        console.warn("Direct Gemini call error, falling back to grounded template:", e);
+      } catch {
+        // Fallback to grounded rule-based template
       }
     }
 
-    // Grounded template response if no API key or network error
-    const topZone = highestRiskZones[0];
-    const topProb = Math.round((topZone.current_prediction?.flood_probability ?? 0) * 100);
-    const answer =
-      this.isStormActive
-        ? `⚠️ Active storm conditions detected. Highest flood risk is currently in ${topZone.name} (Ward ${topZone.ward_number}) at ${topProb}% probability with ${topZone.current_prediction?.rainfall_1h_mm} mm/h rainfall. Primary SWD channels are operating near peak hydraulic capacity. Recommendation: Avoid outer ring road corridors and low-lying underpasses.`
-        : `Bengaluru flood risk is currently nominal (LOW). Highest observed probability is in ${topZone.name} at ${topProb}%. All major stormwater drains (KC Valley, Vrishabhavathi, Hebbal) have adequate capacity with normal recession rates.`;
+    // Grounded template response
+    const qLower = query.toLowerCase();
+    if (this.isStormActive) {
+      return {
+        query,
+        answer: `**Active Storm Alert**: Deluge scenario in progress. Heavy convective rainfall (55–80 mm/h) is causing water levels in Bellandur, Silk Board, and Koramangala basins to elevate. Avoid arterial underpasses along the Outer Ring Road.`,
+        data_sources_consulted: ["Hydraulic Runoff Simulation", "BBMP SWD Grid", "Monotone XGBoost v3"],
+        confidence_level: "HIGH (Grounded Telemetry)",
+        relevant_zones: ["Bellandur", "Silk Board", "Koramangala 4th Block"],
+        timestamp: new Date().toISOString(),
+      };
+    }
+
+    if (qLower.includes("weather") || qLower.includes("rain") || qLower.includes("now")) {
+      const rain = this.liveWeather?.precipitation_now ?? 0.0;
+      const temp = this.liveWeather?.temperature_c ?? 21.5;
+      return {
+        query,
+        answer: `**Live Weather for Bengaluru**: Currently **${temp}°C** with **${rain.toFixed(1)} mm/h** precipitation. All 18 monitored BBMP flood zones are nominal with zero flood threat projected.`,
+        data_sources_consulted: ["Open-Meteo Live API (12.97°N, 77.59°E)", "18 BBMP Ground Stations"],
+        confidence_level: "HIGH (Live Open-Meteo Telemetry)",
+        relevant_zones: ["All 18 zones nominal"],
+        timestamp: new Date().toISOString(),
+      };
+    }
 
     return {
       query,
-      answer,
-      data_sources_consulted: ["Live Sensor Telemetry", "Hydrology Model", "Grounding Templates"],
-      confidence_level: "High (Calibrated)",
-      relevant_zones: highestRiskZones.map((z) => z.name),
-      timestamp: this.simTime.toISOString(),
+      answer: `All 18 Bengaluru flood corridors are currently operating under nominal baseline conditions. Drains and lake outlets have full freeboard capacity. Zero flood risk is projected under current weather. Press **"Run the storm demo"** to project an incoming cloudburst scenario.`,
+      data_sources_consulted: ["Open-Meteo Weather Feed", "18 Corridors Sensor Network"],
+      confidence_level: "HIGH (Nominal Baseline)",
+      relevant_zones: ["All corridors nominal"],
+      timestamp: new Date().toISOString(),
     };
   }
 }

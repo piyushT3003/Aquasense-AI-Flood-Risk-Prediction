@@ -182,10 +182,10 @@ export const AquaGlobe: React.FC<AquaGlobeProps> = ({
     };
 
     zones.forEach((z) => {
-      // Offset slightly around Bengaluru center for visual clarity on globe
+      // Place pins on true geographic coordinates
       const zPos = latLngToVector3(
-        z.center.lat + (Math.random() - 0.5) * 0.15,
-        z.center.lng + (Math.random() - 0.5) * 0.15,
+        z.center.lat,
+        z.center.lng,
         radius + 0.18
       );
       const prob = z.current_prediction?.risk_score ?? 0;
@@ -320,12 +320,16 @@ export const AquaGlobe: React.FC<AquaGlobeProps> = ({
       orbitRings.rotation.y = elapsed * 0.04;
 
       // Pulse Bengaluru marker ring
-      const scale = 1.0 + Math.sin(elapsed * 4.0) * 0.35;
+      const isStorm = stormRef.current;
+      const scale = 1.0 + Math.sin(elapsed * (isStorm ? 4.0 : 2.0)) * (isStorm ? 0.35 : 0.15);
       blrRing.scale.set(scale, scale, 1);
       (blrRingMat as THREE.MeshBasicMaterial).opacity = Math.max(0.1, 0.8 - Math.sin(elapsed * 4.0) * 0.4);
+      (blrCore.material as THREE.MeshBasicMaterial).color.setHex(isStorm ? 0xff2a4b : 0x06b6d4);
+      (blrRingMat as THREE.MeshBasicMaterial).color.setHex(isStorm ? 0xef4444 : 0x22d3ee);
+      (radarMat as THREE.MeshBasicMaterial).color.setHex(isStorm ? 0xef4444 : 0x06b6d4);
 
       // Radar sweep rotation
-      radarRing.rotation.z = elapsed * (stormRef.current ? 4.0 : 1.8);
+      radarRing.rotation.z = elapsed * (isStorm ? 4.0 : 1.2);
 
       // Live marker colours from the latest polled predictions (no scene rebuild)
       zoneMarkers.children.forEach((pin: any) => {
@@ -333,19 +337,22 @@ export const AquaGlobe: React.FC<AquaGlobeProps> = ({
         if (z) (pin.material as THREE.MeshBasicMaterial).color.setHex(getZoneColor(z.current_prediction?.risk_score ?? 0));
       });
 
-      // Rain particles falling down
-      const positions = rainGeo.attributes.position.array as Float32Array;
-      const rainSpeedMultiplier = stormRef.current ? 2.5 : 1.0;
+      // Rain particles: only visible during storm demo!
+      rainParticles.visible = isStorm;
+      if (isStorm) {
+        const positions = rainGeo.attributes.position.array as Float32Array;
+        const rainSpeedMultiplier = 2.5;
 
-      for (let i = 0; i < rainCount; i++) {
-        positions[i * 3 + 1] -= rainVelocities[i] * rainSpeedMultiplier;
-        // reset if below globe surface
-        const currY = positions[i * 3 + 1];
-        if (currY < blrPos.y - 1.2) {
-          positions[i * 3 + 1] = blrPos.y + 1.2 + Math.random() * 0.5;
+        for (let i = 0; i < rainCount; i++) {
+          positions[i * 3 + 1] -= rainVelocities[i] * rainSpeedMultiplier;
+          // reset if below globe surface
+          const currY = positions[i * 3 + 1];
+          if (currY < blrPos.y - 1.2) {
+            positions[i * 3 + 1] = blrPos.y + 1.2 + Math.random() * 0.5;
+          }
         }
+        rainGeo.attributes.position.needsUpdate = true;
       }
-      rainGeo.attributes.position.needsUpdate = true;
 
       renderer.render(scene, camera);
     };
