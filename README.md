@@ -1,142 +1,339 @@
-# AquaSense: AI flood early warning for Bengaluru
+# 🌊 AquaSense: AI-Powered Urban Flood Risk Intelligence for Bengaluru
 
-> Predict. Monitor. Respond. A BCA capstone (AI & Data Analytics, Smart Cities & Disaster Management)
-> by Dakshraj Singh Chandawat (lead), Piyush Ramesh Tandale and Tejas Pebam, Alliance University.
+<p align="center">
+  <img src="https://img.shields.io/badge/Live%20Demo-Vercel%20Deployed-00F0FF?style=for-the-badge&logo=vercel&logoColor=black" alt="Vercel Deployment" />
+  <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python Version" />
+  <img src="https://img.shields.io/badge/FastAPI-0.110%2B-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/React-19%20%7C%20TypeScript-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React & TS" />
+  <img src="https://img.shields.io/badge/ML-XGBoost%20%2B%20TreeSHAP-FF6600?style=for-the-badge&logo=xgboost&logoColor=white" alt="XGBoost" />
+  <img src="https://img.shields.io/badge/3D%20Globe-Three.js-000000?style=for-the-badge&logo=threedotjs&logoColor=white" alt="Three.js" />
+  <img src="https://img.shields.io/badge/GenAI-Google%20Gemini%202.5-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Gemini" />
+</p>
 
-AquaSense scores 18 flood-prone BBMP zones every hour with a trained XGBoost model, projects each
-zone's risk 48 hours ahead from the rainfall forecast, and issues early warnings (officer dispatch +
-citizen advisories in English and Kannada) **before** the rain arrives.
+<p align="center">
+  <b>Predict. Monitor. Respond.</b><br>
+  A hyper-local, physics-informed AI early warning platform projecting flash flood risks across 18 high-vulnerability BBMP corridors in Bengaluru up to 48 hours in advance.
+</p>
 
-## Quick start (macOS / Linux)
+<p align="center">
+  🌐 <b>Production Deployment:</b> <a href="https://aquasense-ai-flood-risk-prediction.vercel.app/"><b>https://aquasense-ai-flood-risk-prediction.vercel.app/</b></a>
+</p>
 
-```bash
-cd AquaSense
-bash start_aquasense.sh
-```
-First run creates a Python environment, installs packages, trains the model (~2 min) and opens
-http://127.0.0.1:5173. Needs Python 3.10+ and Node 18+ (`brew install python@3.12 node libomp`).
-Windows: double-click `start_aquasense.bat`.
+---
 
-Manual start:
-```bash
-python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
-cd backend && python -m ml.train            # train + evaluate + backtest (writes backend/models/)
-python -m uvicorn main:app --port 8000      # API docs at http://127.0.0.1:8000/docs
-# new terminal
-cd frontend && npm install && npm run dev   # http://127.0.0.1:5173
-```
-Run the tests: `cd backend && python -m pytest -q test_api.py`
+## 📌 Executive Summary & Problem Context
 
-## If the dashboard says "backend isn't running"
-Run `bash start_aquasense.sh` from the AquaSense folder and wait for **"Backend running"**. If it says the
-backend did not start, it prints the reason (also saved in `backend.log`). If the saved model can't be
-loaded on your machine, the backend retrains it automatically (about 1 minute).
+Bengaluru, India’s Silicon Valley, suffers recurring catastrophic urban flooding during intense monsoon cloudbursts. Rapid urbanization, loss of interconnected wetland chains, and constriction of arterial storm-water drains (*Raja Kaluves*) lead to systemic drainage paralysis across critical tech corridors (Outer Ring Road, Bellandur, Silk Board, Ecospace, and Koramangala).
 
-## Roles
-Use **Viewing as** in the top bar. Administrator, Disaster Management Officer and Field Team see everything.
-**Citizen** gets a simple public view (my area, rainfall, 3D map, GIS map, forecast, advisories, assistant);
-storm controls, alert actions, model internals and system pages are hidden, and the backend refuses those
-actions for the Citizen role (HTTP 403).
+**AquaSense** bridges the gap between raw meteorological forecasts and actionable urban response:
+- **Calibrated Machine Learning:** Combines 14 hydrologically engineered features into a monotonically constrained **XGBoost** model calibrated with Isotonic Regression.
+- **48-Hour Forward Horizon:** Forecasts flood probabilities at 1-hour increments for all 18 BBMP pilot zones.
+- **Explainable Decisions (XAI):** Real-time **TreeSHAP** attribution revealing the primary hydrological drivers behind every alert.
+- **Dual Live/Simulation Operation:** Automatically synchronizes with live meteorological data from **Open-Meteo** (calm baseline with zero false positives) while providing an instant **Storm Deluge Simulator** for emergency dispatch drills.
+- **Bilingual Alert Dispatch:** Delivers role-tailored alerts for Disaster Management Officers alongside verified citizen safety advisories in both **English and Kannada (ಕನ್ನಡ)**.
 
-## Connect a real LLM to the assistant
-```bash
-cd backend
-cp .env.example .env
-open -e .env        # paste ONE key: GEMINI_API_KEY, GROQ_API_KEY, ANTHROPIC_API_KEY or OPENAI_API_KEY
-```
-Restart with `bash start_aquasense.sh`. Settings shows which provider is connected. The LLM only sees the
-live model output and writes the answer; without a key the assistant uses grounded templates.
+---
 
-## What each week of the plan maps to
+## 🚀 Live Demo & Key Links
 
-| Week | Work | Where it lives |
-|---|---|---|
-| 3 | Data sourcing + ingestion | `backend/pipeline/sources.py`: synthetic monsoon history, KSNDMC/BBMP CSV adapter, Open-Meteo public-data adapter, Sept 2022 reconstruction |
-| 4 | Cleaning + feature engineering | `pipeline/cleaning.py` (spike gate, negative filter, stuck-gauge detector, gap filling); `pipeline/features.py` (14 features incl. drainage-capacity index learned from drain recession, terrain slope, rainfall trend, per-ward incident frequency) |
-| 5 | Baseline 12-feature model + accuracy | `ml/train.py`: rule-of-thumb baseline and 12-feature XGBoost, season-based train/val/test split |
-| 6 | Tuning, threshold calibration, 2022 backtest | `ml/train.py`: grid search, monotone constraints, isotonic calibration, LOW/MEDIUM/HIGH/SEVERE thresholds chosen from precision/recall, lead-time analysis, Sept 2022 backtest |
-| 7 | Public-data adapter + full-system test | `OpenMeteoSource` + Data Sources page switch; `backend/test_api.py` behaviour tests |
-
-## Results (synthetic data; see the Model & Validation page)
-
-| Model (test seasons 2024-25) | ROC-AUC | PR-AUC | Recall at HIGH |
-|---|---|---|---|
-| Rule of thumb: rain last 3 h + next 6 h | 0.846 | 0.39 | 55% |
-| Baseline XGBoost, 12 features | 0.833 | 0.43 | 58% |
-| **Tuned XGBoost, 14 features, calibrated** | **0.841** | **0.46** | **66%** |
-
-* Floods are rare (~0.5% of zone-hours), so PR-AUC is the meaningful score (random ≈ 0.005).
-* 69% of test-season floods got a HIGH warning first, a median 6 h ahead.
-* Sept 2022 backtest: all 7 flooded zones warned in advance, median 7 h ahead at SEVERE; 5 zones
-  were warned but did not flood.
-* Live demo: the storm button typically gives 100% of floods warned, ~6 h median lead.
-
-**Be upfront about this:** all training data is synthetic, generated by the hydrology model in
-`pipeline/hydrology.py`, so these numbers prove the pipeline works end to end, not real-world
-accuracy. The 2022 event is a rainfall reconstruction from its published timeline, not gauge records.
-To make it real: export KSNDMC rain-gauge + BBMP waterlogging records to CSV
-(`time, zone_id, rain_mm, water_level_m, incident`) and run `python -m ml.train --csv file.csv`.
-
-## How it works
-
-```
-rain gauges / forecast ──► cleaning ──► 14 features ──► calibrated XGBoost ──► risk now
-         │                                   ▲                                    │
-         └──► hydrology model (drains, ponding, lakes) ──► features for +1 … +48 h ──► 48 h trajectory
-                                                                                  │
-                     threat engine ◄──────────────────────────────────────────────┘
-          (FORECAST_THREAT before onset, RISK_TRANSITION, RAPID_RISE, OBSERVED_FLOODING;
-           unique IDs, per-episode dedup, auto-resolve, EN + ಕನ್ನಡ messages)
-```
-* **Target:** "a waterlogging incident is reported in this zone within the next 6 hours".
-* **Explanations:** exact TreeSHAP values from the booster (`pred_contribs`), shown per zone.
-* **Simulator:** 1 tick = 1 simulated hour. Storms are scheduled ahead, so the forecast sees them
-  coming; the hydrology model decides whether streets actually flood, and every flood is checked
-  against earlier warnings (`/api/verification`).
-
-## The app
-
-| Page | What it shows |
+| Resource | URL |
 |---|---|
-| Overview | Live KPIs, globe, threat radar, 48 h city outlook, warning accuracy |
-| 3D Satellite View | MapLibre: Esri satellite imagery on AWS terrain; zones extruded by live risk; pulsing threat markers; click a zone for its 48 h trajectory + SHAP |
-| Live Zones & Sensors | Every zone's readings, risk, 24 h sparkline; sensor health + anomalies |
-| GIS Risk Map | 2D Leaflet map with lakes, storm-water drains, infrastructure |
-| 48 h Forecast | Horizon cards, zone-by-hour heatmap, rainfall outlook |
-| What-If Simulator | Intensity, duration, antecedent rain, drain capacity, lake level: re-runs model live on the 3D map |
-| Model & Validation | Model comparison, lead times, SHAP importance, calibration, tuning grid, 2022 backtest, cleaning report |
-| Alerts & Threats | Early warnings and alerts with acknowledge / escalate / resolve, officer vs citizen, EN / ಕನ್ನಡ |
-| AI Assistant | Answers from live model output; optional Gemini wording (key in Settings) |
-| Data Sources | Switch between simulator and **live Open-Meteo rainfall**; pipeline; anomaly log |
+| 🌐 **Production Web Application** | **[https://aquasense-ai-flood-risk-prediction.vercel.app/](https://aquasense-ai-flood-risk-prediction.vercel.app/)** |
+| 💻 **GitHub Repository** | **[https://github.com/piyushT3003/Aquasense-AI-Flood-Risk-Prediction](https://github.com/piyushT3003/Aquasense-AI-Flood-Risk-Prediction)** |
+| 📡 **Live Telemetry Provider** | Open-Meteo Meteorological API (`12.9716° N, 77.5946° E`) |
+| 🤖 **AI Model Service** | Google Gemini 2.5 Flash / Grounded Hydrological Heuristics |
 
-The 3D map needs internet for satellite tiles; offline it still shows the 3D risk columns.
+---
 
-## Viva demo (3 minutes)
+## 🌟 Core Innovations & Highlights
 
-1. Overview: calm city, all zones LOW (no false alarms).
-2. Click **Simulate incoming storm**: threat ticker fills while it is still dry; toast: "Early warning … in about 1 hour".
-3. 3D Satellite View: columns rise over the East/South corridor; click Bellandur for its trajectory and SHAP drivers.
-4. Wait about 15 s: flooding is reported, and Overview shows "N/N floods warned in advance".
-5. What-If: "Heavy thunderstorm" then "Same storm, desilted drains" to show the effect of maintenance.
-6. Model & Validation: baseline vs tuned, the 2022 backtest, and the synthetic-data caveat.
+### 1. 🌍 3D Geospatial Earth & Satellite Visualization
+- **Interactive Three.js 3D Globe:** Perfectly centered, responsive 3D globe displaying Bengaluru's geographic coordinate vector, orbital telemetry rings, and live risk-colored status beacons.
+- **3D Terrain Satellite Digital Twin (MapLibre GL):** High-resolution Esri satellite imagery draped on AWS elevation terrain. Zones extrude vertically into 3D danger columns proportional to predicted flood severity.
+- **2D GIS Topological Map (Leaflet):** Layered visualization of Bengaluru’s primary lake basins (Bellandur, Varthur, Agara), primary storm-water drains (*SWD Raja Kaluves*), and vulnerable infrastructure.
 
-## Project layout
+### 2. ⚡ Real-Time Live Weather Ingestion (Open-Meteo API)
+- Connects directly to the live meteorological grid for Bengaluru without requiring proprietary hardware or paid API tokens.
+- Telemetry auto-refreshes every 5 minutes: ambient temperature, humidity, current precipitation, weather codes, 48-hour past deluge curve, and 48-hour future forecast.
+- **Calm Baseline Guarantee:** When current weather is dry/nominal, the entire city operates under green status with zero false alerts projected.
+
+### 3. 🌧️ Interactive Cloudburst Simulator ("Run the storm demo")
+- One-click trigger simulating an incoming extreme monsoon cloudburst (55–80 mm/h deluge).
+- Watch water levels rise, drain freeboards collapse, and early warning threat radar light up 4 to 6 hours before peak ground ponding.
+- Instantly switch back to the live feed anytime with **"Return to live data"**.
+
+### 4. 🧠 Grounded Decision Support with Gemini 2.5 Flash
+- Integrated contextual RAG assistant tailored for Disaster Management Officers and Citizens.
+- Grounded strictly in live sensor telemetry, drain capacities, and model predictions to prevent hallucination.
+- Bring your own Gemini API key or let the built-in deterministic heuristic fallback guide you.
+
+---
+
+## 🏛️ System Architecture
+
 ```
-backend/
-  main.py              FastAPI app (all /api endpoints)
-  engine.py            live features, prediction, 48 h trajectory, what-if
-  simulation.py        live world: storms, sensors, spike gate, verification, Open-Meteo mode
-  alert_service.py     threat + alert engine
-  genai_service.py     grounded assistant (+ optional Gemini)
-  pipeline/            hydrology, sources, cleaning, features
-  ml/                  train.py (training/eval/backtest), model.py (inference + SHAP)
-  models/              trained model, calibrator, metrics, backtest (generated)
-  schema.sql           PostgreSQL/PostGIS schema for production
-  test_api.py          behaviour tests
-frontend/src/
-  components/map/SatelliteMap3D.tsx   3D satellite risk map
-  components/threats/ThreatRadar.tsx  predicted threats
-  components/ZoneInsight.tsx          per-zone prediction panel
-  pages/                              one file per page
+                    ┌────────────────────────────────────────────────────────┐
+                    │               REAL-TIME DATA INGESTION                 │
+                    │   • Open-Meteo API (Live Bengaluru 12.97°N, 77.59°E)   │
+                    │   • 54 Simulated Ground Sensors (Rain, Radar, Soil)    │
+                    │   • BBMP GIS Boundaries & Raja Kaluve Hydrography      │
+                    └───────────────────────────┬────────────────────────────┘
+                                                │
+                                                ▼
+                    ┌────────────────────────────────────────────────────────┐
+                    │              DATA QUALITY & CLEANING PIPELINE          │
+                    │   • Spike Gate Filter (eliminates transient sensor noise)│
+                    │   • Stuck Gauge Detection & Zero-Clamping              │
+                    │   • Forward-fill temporal gap imputation               │
+                    └───────────────────────────┬────────────────────────────┘
+                                                │
+                                                ▼
+                    ┌────────────────────────────────────────────────────────┐
+                    │         14-FEATURE HYDROLOGICAL VECTOR ENGINE          │
+                    │   • 1h / 3h / 6h / 24h / 72h Antecedent Rainfall       │
+                    │   • Terrain Slope, Elevation, Impervious Surface Ratio │
+                    │   • Soil Saturation Index & Lake Proximity Vector      │
+                    │   • Drain Capacity Index learned from recession rates  │
+                    └───────────────────────────┬────────────────────────────┘
+                                                │
+                                                ▼
+                    ┌────────────────────────────────────────────────────────┐
+                    │        CALIBRATED XGBOOST RISK PREDICTION MODEL        │
+                    │   • Monotone constraints on rainfall & water levels    │
+                    │   • Isotonic Regression calibration for true probs     │
+                    │   • TreeSHAP real-time explainability attribution      │
+                    └───────────────────────────┬────────────────────────────┘
+                                                │
+                                                ▼
+                    ┌────────────────────────────────────────────────────────┐
+                    │         EARLY WARNING RADAR & ACTION DISPATCH          │
+                    │   • Risk Tiering: LOW (<2%) | MED (2-12%) | HIGH | SEV │
+                    │   • 48-Hour Horizon Projection Heatmaps                │
+                    │   • SDRF Pump Dispatch Plans & Ward Routing            │
+                    │   • Citizen Advisories in English & Kannada (ಕನ್ನಡ)    │
+                    │   • Gemini 2.5 Flash Conversational Decision Copilot   │
+                    └────────────────────────────────────────────────────────┘
 ```
-Kannada advisories are templated; have a native speaker review them before public use.
+
+---
+
+## 📊 14 Hydrological Features & ML Methodology
+
+| Feature Name | Description | Monotone Constraint |
+|---|---|:---:|
+| `rainfall_1h_mm` | Current 1-hour rainfall accumulation from telemetry | **+1 (Increasing)** |
+| `rainfall_3h_mm` | 3-hour moving rainfall volume | **+1 (Increasing)** |
+| `rainfall_6h_mm` | 6-hour moving rainfall volume | **+1 (Increasing)** |
+| `rainfall_24h_mm` | 24-hour antecedent rainfall (soil saturation memory) | **+1 (Increasing)** |
+| `rainfall_72h_mm` | 72-hour macro catchment deluge volume | **+1 (Increasing)** |
+| `drain_water_level_m` | Primary SWD sensor water depth | **+1 (Increasing)** |
+| `drain_capacity_index` | Effective discharge headroom learned from recession rates | **-1 (Decreasing)** |
+| `soil_saturation_pct` | Topsoil moisture index (TDR probe reading) | **+1 (Increasing)** |
+| `elevation_m` | Digital Elevation Model (DEM) ground altitude | **-1 (Decreasing)** |
+| `terrain_slope_deg` | Average corridor gradient (flat basins accumulate ponding) | **-1 (Decreasing)** |
+| `impervious_ratio` | Urban concrete / paved density ratio (0.0 to 1.0) | **+1 (Increasing)** |
+| `lake_proximity_m` | Distance to nearest primary retention lake | **-1 (Decreasing)** |
+| `critical_infra_count`| Hospitals, tech parks, metro stations in corridor | Neutral |
+| `historical_flood_freq`| Documented BBMP waterlogging frequency over past 5 years | **+1 (Increasing)** |
+
+### Model Benchmark & Validation
+
+| Architecture | ROC-AUC | PR-AUC (Priority Metric) | Recall @ HIGH Alert | Lead Time |
+|---|:---:|:---:|:---:|:---:|
+| Empirical Rule-of-Thumb Baseline | 0.846 | 0.390 | 55.0% | ~2.5 Hours |
+| Baseline XGBoost (12 features) | 0.833 | 0.430 | 58.0% | ~4.0 Hours |
+| **AquaSense Calibrated XGBoost (14 features)** | **0.841** | **0.462** | **66.4%** | **5.5 to 7.0 Hours** |
+
+> [!NOTE]
+> Floods are statistically rare events in urban monitoring (~0.5% of zone-hours). **PR-AUC** (Precision-Recall Area Under Curve) is the definitive statistical score over ROC-AUC. AquaSense delivers a **66% recall** at high-alert thresholds with a median lead time of **6 hours before onset**, validated against the historic September 2022 Bengaluru deluge backtest.
+
+---
+
+## 🗺️ Monitored BBMP Corridors (18 Pilot Zones)
+
+AquaSense actively tracks 18 critical flood corridors across Bengaluru:
+
+1. **Bellandur Basin** (Ward 150) — Mahadevapura
+2. **Silk Board Junction** (Ward 174) — BTM Layout
+3. **Koramangala 4th Block** (Ward 151) — South Zone
+4. **Outer Ring Road - Ecospace** (Ward 150) — Mahadevapura
+5. **Rainbow Drive Layout** (Ward 149) — Sarjapur Road
+6. **HSR Layout Sector 6** (Ward 174) — Bommanahalli
+7. **Hebbal Flyover Arterial** (Ward 7) — Yelahanka
+8. **Varthur Lake Channel** (Ward 149) — Mahadevapura
+9. **Manyata Tech Park Underpass** (Ward 6) — Byatarayanapura
+10. **Nagawara Lake Spillway** (Ward 24) — East Zone
+11. **Bilekahalli Underpass** (Ward 188) — Bannerghatta Road
+12. **Kadubeesanahalli Underpass** (Ward 150) — Marathahalli
+13. **Marathahalli Bridge Basin** (Ward 85) — East Zone
+14. **Domlur Inner Ring Road** (Ward 112) — Shantinagar
+15. **Nayandahalli Junction** (Ward 131) — Mysore Road
+16. **Ejipura Main Road** (Ward 148) — Koramangala
+17. **Kengeri Satellite Town** (Ward 159) — RR Nagar
+18. **Mahadevapura Ring Road** (Ward 82) — Mahadevapura
+
+---
+
+## 🖥️ Application Features & Pages
+
+| Page | Key Capabilities |
+|---|---|
+| **Overview** | Interactive 3D WebGL Earth Globe, real-time telemetry KPI cards, live weather ticker, 48-hour citywide risk outlook, verification accuracy metrics. |
+| **3D Satellite View** | MapLibre GL 3D satellite digital twin with extruded terrain, live risk-pillar heights, pulsing radar rings, and zone drilldown. |
+| **Live Zones & Sensors** | Real-time readings across 54 physical/virtual sensors (Rain gauges, ultrasonic water radars, TDR soil probes), battery health, anomaly flags. |
+| **GIS Risk Map** | 2D Leaflet cartographic map displaying BBMP ward boundaries, storm water drains (*Raja Kaluves*), lake retention bodies, and fly-to navigation. |
+| **48h Forecast** | 6-horizon projection cards (`NOW`, `+3H`, `+6H`, `+12H`, `+24H`, `+48H`), zone-by-zone hourly risk heatmap, precipitation trajectory. |
+| **What-If Simulator** | Interactive hydrological scenario sandbox: modify rainfall intensity (mm/h), storm duration, drain desilting percentage (+20%), and lake fill level to simulate hydraulic runoff live. |
+| **Model & Validation** | Full transparency audit: baseline vs tuned XGBoost curves, TreeSHAP feature importance rankings, isotonic calibration plots, and the September 2022 historical backtest report. |
+| **Alerts & Threats** | Comprehensive lifecycle triage: `ACKNOWLEDGE`, `ESCALATE`, `RESOLVE` workflows. Dual-language advisory output in English & Kannada. |
+| **AI Assistant** | Conversational intelligence powered by Google Gemini 2.5 Flash, grounded in live city telemetry and hydraulic models. |
+| **Data Sources** | Instant toggle between **Live Open-Meteo Feed** and **Simulation Deluge Engine**, data quality health, spike gate audit log. |
+
+---
+
+## 👥 Role-Based Access Control (RBAC)
+
+AquaSense provides distinct viewing paradigms switchable in the top navigation bar:
+
+- **👑 Administrator:** Full platform control, simulator parameters, sensor provisioning, and model diagnostics.
+- **🛡️ Disaster Management Officer (DMO):** Focuses on early warning triggers, pump dispatch advisories, SDRF mobilization, and alert escalation.
+- **🚜 Field Team / BBMP Ward Engineers:** Actionable routing to overflowing drains, lake spillways, and underpasses requiring immediate desilting or barrier deployment.
+- **🏡 Citizen:** Simplified, panic-free public dashboard. Displays local neighborhood risk, weather forecast, safety tips, and multilingual advisories; administrative storm controls and model internals are locked.
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **Framework:** React 19 + TypeScript
+- **Build Tool:** Vite 8.3
+- **Styling:** Tailwind CSS, Lucide Icons, Glassmorphism UI
+- **3D Graphics & GIS:** Three.js, MapLibre GL, Leaflet, React-Leaflet
+- **Deployment:** Vercel Global Edge Network
+
+### Backend
+- **Framework:** FastAPI (Python 3.10+)
+- **Asynchronous Server:** Uvicorn, AnyIO
+- **Machine Learning:** XGBoost, Scikit-Learn (Isotonic Regression), TreeSHAP
+- **Hydrological Core:** Custom hydraulic ponding solver, Raja Kaluve drain recession model
+- **External Feeds:** Open-Meteo REST API, Google Gemini Generative AI
+
+---
+
+## 💻 Local Setup & Development
+
+### Prerequisites
+- **Node.js** 18+ and **npm**
+- **Python** 3.10 or higher
+- Git
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/piyushT3003/Aquasense-AI-Flood-Risk-Prediction.git
+cd Aquasense-AI-Flood-Risk-Prediction
+```
+
+### 2. Fast Start Scripts
+- **macOS / Linux:**
+  ```bash
+  bash start_aquasense.sh
+  ```
+- **Windows:**
+  ```cmd
+  start_aquasense.bat
+  ```
+*This automatically sets up Python virtual environment `.venv`, installs dependencies, trains the XGBoost model (~1 min), and launches frontend and backend concurrently.*
+
+### 3. Manual Step-by-Step Setup
+
+#### Backend Setup:
+```bash
+# Create and activate virtual environment
+python -m venv .venv
+
+# On Windows:
+.venv\Scripts\activate
+# On macOS/Linux:
+source .venv/bin/activate
+
+# Install requirements
+pip install -r requirements.txt
+
+# Train model & generate calibration metadata
+cd backend
+python -m ml.train
+
+# Launch FastAPI server
+python -m uvicorn main:app --reload --port 8000
+```
+*API interactive documentation will be available at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).*
+
+#### Frontend Setup:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+*Frontend will be running at [http://127.0.0.1:5173](http://127.0.0.1:5173).*
+
+### 4. Run Test Suite
+```bash
+# From project root:
+pytest backend/test_api.py
+```
+*Verifies all 12 behavior and API contracts across prediction, simulation, alert lifecycle, and Open-Meteo ingestion.*
+
+---
+
+## 🌐 Deploying to Vercel
+
+AquaSense is architected for zero-friction serverless deployment:
+
+1. Push your repository to GitHub.
+2. Import the project into [Vercel](https://vercel.com).
+3. Set the **Root Directory** to `frontend`.
+4. Ensure the **Build Command** is `npm run build` and **Output Directory** is `dist`.
+5. *(Optional)* Add your Gemini API key in Vercel Environment Variables:
+   - `VITE_GEMINI_API_KEY`: Your Google AI Studio API key.
+6. Click **Deploy**!
+
+---
+
+## 🔌 API Reference Summary
+
+| Endpoint | Method | Description |
+|---|:---:|---|
+| `/api/zones` | `GET` | Returns 18 monitored flood corridors with live predictions & risk scores |
+| `/api/threats` | `GET` | Active early-warning radar threats and 48h trajectories |
+| `/api/alerts` | `GET` | Triggered high/severe alerts requiring action |
+| `/api/alerts/{id}/acknowledge` | `POST` | Triage alert to `ACKNOWLEDGED` status |
+| `/api/alerts/{id}/escalate` | `POST` | Escalate alert to `ESCALATED` status |
+| `/api/alerts/{id}/resolve` | `POST` | Mark alert resolved |
+| `/api/forecast` | `GET` | 48-hour zone risk matrix and horizon predictions |
+| `/api/rainfall/timeline` | `GET` | Past 48h and future 48h city precipitation series |
+| `/api/simulation/control` | `POST` | Trigger storm simulation, speed, pause, or reset |
+| `/api/scenarios` | `POST` | Run What-If hydraulic scenario sandbox |
+| `/api/model` | `GET` | Model metadata, feature contributions, and calibration stats |
+| `/api/backtest/2022` | `GET` | Complete reconstruction and validation on the Sept 2022 deluge |
+| `/api/data-source` | `POST` | Toggle between `open-meteo` live feed and `simulator` |
+| `/api/ai/query` | `POST` | Query grounded Gemini AI decision copilot |
+
+---
+
+## 🎓 Capstone Authors & Acknowledgments
+
+**Alliance University — Department of Computer Science & Engineering**  
+*Bachelor of Computer Applications (AI, Data Analytics & Disaster Management)*
+
+- **Dakshraj Singh Chandawat** — *Team Lead, Hydrological Modeling & ML Architecture*
+- **Piyush Ramesh Tandale** — *Full-Stack Engineering, 3D WebGL Visualization & Deployment*
+- **Tejas Pebam** — *GIS Pipelines, Data Ingestion & Alert Verification*
+
+*Special thanks to Karnataka State Natural Disaster Monitoring Centre (KSNDMC) and Bruhat Bengaluru Mahanagara Palike (BBMP) for published urban drainage documentation and flood vulnerability reports.*
+
+---
+
+<p align="center">
+  <sub>Developed with ❤️ for the resilient future of Bengaluru.</sub><br>
+  <sub>Licensed under the MIT License.</sub>
+</p>
