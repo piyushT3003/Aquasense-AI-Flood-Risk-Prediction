@@ -1,3 +1,11 @@
+<!-- banner -->
+<a href="https://aquasense-ai-flood-risk-prediction.vercel.app/">
+  <picture>
+    <source media="(prefers-color-scheme: light)" srcset="./.github/assets/banner-light.svg" />
+    <img src="./.github/assets/banner.svg" width="100%" alt="Project banner" />
+  </picture>
+</a>
+
 # 🌊 AquaSense: AI-Powered Urban Flood Risk Intelligence for Bengaluru
 
 <p align="center">
